@@ -26,7 +26,10 @@ jobs:
     - name: Build Frontend
       run: cd web-apps/svg-dropper/frontend && /home/pi/.bun/bin/bun i && npm run build
 
-      
+    - name: Serve dist folder
+      run: |
+        cd web-apps/svg-dropper/frontend/dist
+        python -m http.server 81
 
 
     
