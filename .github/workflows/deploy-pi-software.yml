@@ -23,14 +23,16 @@ jobs:
     - name: Install reqs
       run: /home/pi/sofia-plotter/bin/pip install -r python/requirements.txt
 
+    - name: Stop serving svg-dropper frontend
+      run: sudo systemctl stop serve-svg-dropper-frontend.service
+
     - name: Build Frontend
       run: cd web-apps/svg-dropper/frontend && /home/pi/.bun/bin/bun i && npm run build
       
-    - name: Serve dist folder and check
+    - name: Stop serving svg-dropper frontend
       run: |
-        pkill -f "python -m http.server 8081" || true &&
-        cd web-apps/svg-dropper/frontend/dist &&
-        nohup python -m http.server 8081 > server.log 2>&1 &
+        sudo systemctl start serve-svg-dropper-frontend.service
+        sudo systemctl status serve-svg-dropper-frontend.service
 
 
     
