@@ -16,9 +16,10 @@ jobs:
     - name: Source bash
       run: source ~/.bashrc
     
-    - name: Activate Python
-      run: 
+    - name: Activate Python and kill old 
+      run: |
         source /home/pi/sofia-plotter/bin/activate
+        pkill python
         
     - name: Install reqs
       run: /home/pi/sofia-plotter/bin/pip install -r python/requirements.txt
@@ -29,7 +30,7 @@ jobs:
     - name: Serve dist folder and check
       run: |
         cd web-apps/svg-dropper/frontend/dist
-        python -m http.server 8081 &
+        nohup python -m http.server 8081 > server.log 2>&1 &
         sleep 5
         if curl -s http://localhost:8081 > /dev/null; then
           echo "Frontend server is running"
