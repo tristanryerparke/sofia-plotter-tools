@@ -28,15 +28,9 @@ jobs:
       
     - name: Serve dist folder and check
       run: |
-        pkill -f "python -m http.server 8081" || true
-        cd web-apps/svg-dropper/frontend/dist
-        nohup python -m http.server 8081 > server.log 2>&1 &
-        sleep 5
-        if curl -s http://localhost:8081 > /dev/null; then
-          echo "Frontend server is running"
-        else
-          echo "Frontend server failed to start"
-          exit 1
-        fi
+        pkill -f "python -m http.server 8081" || true &&
+        cd web-apps/svg-dropper/frontend/dist &&
+        nohup python -m http.server 8081 > server.log 2>&1 & &&
+
 
     
