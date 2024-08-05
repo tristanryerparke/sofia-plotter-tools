@@ -18,4 +18,4 @@ jobs:
         source /home/pi/sofia-plotter/bin/activate
         
     - name: Install reqs
-      run: python -m pip install -r python/requirements.txt
+      run: /home/pi/sofia-plotter/bin/pip install -r python/requirements.txt
