@@ -29,7 +29,7 @@ jobs:
     - name: Serve dist folder
       run: |
         cd web-apps/svg-dropper/frontend/dist
-        python -m http.server 8081 &
+        python -m http.server 8081
 
 
     
