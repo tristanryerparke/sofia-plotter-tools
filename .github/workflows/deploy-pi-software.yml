@@ -19,3 +19,11 @@ jobs:
         
     - name: Install reqs
       run: /home/pi/sofia-plotter/bin/pip install -r python/requirements.txt
+
+    - name: Build Frontend
+      run: cd web-apps/svg-dropper/frontend && bun i && npm run build
+
+      
+
+
+    
