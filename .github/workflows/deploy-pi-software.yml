@@ -19,7 +19,6 @@ jobs:
     - name: Activate Python and kill old 
       run: |
         source /home/pi/sofia-plotter/bin/activate
-        pkill python
         
     - name: Install reqs
       run: /home/pi/sofia-plotter/bin/pip install -r python/requirements.txt
@@ -29,6 +28,7 @@ jobs:
       
     - name: Serve dist folder and check
       run: |
+        pkill -f "python -m http.server 8081" || true
         cd web-apps/svg-dropper/frontend/dist
         nohup python -m http.server 8081 > server.log 2>&1 &
         sleep 5
