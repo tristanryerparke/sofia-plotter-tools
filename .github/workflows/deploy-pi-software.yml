@@ -30,7 +30,7 @@ jobs:
       run: |
         pkill -f "python -m http.server 8081" || true &&
         cd web-apps/svg-dropper/frontend/dist &&
-        nohup python -m http.server 8081 > server.log 2>&1 & &&
+        nohup python -m http.server 8081 > server.log 2>&1 &
 
 
     
