@@ -12,6 +12,9 @@ jobs:
     
     steps:
     - uses: actions/checkout@v3
+
+    - name: Source bash
+      run: source ~/.bashrc
     
     - name: Activate Python
       run: 
