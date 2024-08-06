@@ -55,7 +55,7 @@ function App() {
   const handleGenerateGCODE = async (params) => {
     setIsGenerating(true);
     try {
-      const response = await fetch('http://localhost:8000/process-svg', {
+      const response = await fetch('http://localhost:8082/process-svg', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
