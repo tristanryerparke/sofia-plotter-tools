@@ -3,7 +3,7 @@ Description=Backend Server
 After=network.target
 
 [Service]
-ExecStart=ExecStart=/home/pi/sofia-plotter/bin/uvicorn server:app --host localhost --port 8082
+ExecStart=/home/pi/sofia-plotter/bin/uvicorn server:app --host 0.0.0.0 --port 8082
 WorkingDirectory=/home/pi/actions-runner/_work/sofia-plotter/sofia-plotter/web-apps/svg-dropper/backend
 Restart=on-failure
 RestartSec=5
