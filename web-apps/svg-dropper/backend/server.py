@@ -100,10 +100,10 @@ async def process_svg(data: SVGData):
         # Encode gcode as base64
         gcode_base64 = base64.b64encode(gcode.encode()).decode()
         
-        return {"message": "SVG processed successfully", "gcode": gcode_base64}
+        return {"message": "SVG processed successfully", "gcode": gcode_base64, "params": data.params}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="localhost", port=8000)
+    uvicorn.run(app, host="localhost", port=8082)
