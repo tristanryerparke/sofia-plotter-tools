@@ -1,13 +1,92 @@
-import { MantineProvider } from '@mantine/core';
-import { AppShell, Burger, Group, Skeleton, Title, Text, Container } from '@mantine/core';
-import { Dropzone } from '@mantine/dropzone';
+import { useState, useEffect } from 'react';
+import { MantineProvider, AppShell, Burger, Group, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import '@mantine/core/styles.css';
-import '@mantine/dropzone/styles.css';
 import './index.css'
+import { saveAs } from 'file-saver';
+
+import Parameters from './components/Parameters';
+import SVGDropzone from './components/SVGDropzone';
+import SVGViewer from './components/SVGViewer';
+import GCODEViewer from './components/GCODEViewer';
+import BottomBar from './components/BottomBar';
 
 function App() {
   const [opened, { toggle }] = useDisclosure();
+  const [viewerState, setViewerState] = useState('Upload');
+  const [svgContent, setSvgContent] = useState(null);
+  const [svgInfo, setSvgInfo] = useState({ width: 0, height: 0, filename: '', pathCount: 0 });
+  const [gcodeContent, setGcodeContent] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleSVGUpload = (content, filename) => {
+    setSvgContent(content);
+    setViewerState('SVG');
+
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(content, 'image/svg+xml');
+    const svgElement = svgDoc.documentElement;
+
+    let width = svgElement.getAttribute('width');
+    let height = svgElement.getAttribute('height');
+
+    if (width && height) {
+      const widthUnit = width.replace(/[0-9.]/g, '');
+      const heightUnit = height.replace(/[0-9.]/g, '');
+
+      if (widthUnit === 'mm' && heightUnit === 'mm') {
+        width = parseFloat(width);
+        height = parseFloat(height);
+      } else {
+        width = 0;
+        height = 0;
+      }
+    } else {
+      width = 0;
+      height = 0;
+    }
+
+    const outputFilename = filename.replace(/\.svg$/i, '');
+    const pathCount = svgDoc.getElementsByTagNameNS("http://www.w3.org/2000/svg", "path").length;
+
+    setSvgInfo({ width, height, filename: outputFilename, pathCount });
+  };
+
+  const handleGenerateGCODE = async (params) => {
+    setIsGenerating(true);
+    try {
+      const response = await fetch('http://localhost:8000/process-svg', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          svg_base64: btoa(svgContent),
+          params: params,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const result = await response.json();
+      console.log(result);
+      setGcodeContent(result.gcode);
+      setViewerState('GCode');
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleDownloadGCODE = () => {
+    if (gcodeContent) {
+      const blob = new Blob([atob(gcodeContent)], { type: 'text/plain;charset=utf-8' });
+      saveAs(blob, `${svgInfo.filename}.gcode`);
+    }
+  };
 
   return (
     <MantineProvider defaultColorScheme="light">
@@ -15,6 +94,7 @@ function App() {
         header={{ height: 60 }}
         navbar={{ width: 300, breakpoint: 'sm', collapsed: { mobile: !opened } }}
         padding="md"
+        h='100vh'
       >
         <AppShell.Header>
           <Group h="100%" px="md">
@@ -23,45 +103,31 @@ function App() {
           </Group>
         </AppShell.Header>
         <AppShell.Navbar p="md">
-          <Title order={4}>Parameters:</Title>
-          {Array(15)
-            .fill(0)
-            .map((_, index) => (
-              <Skeleton key={index} h={28} mt="sm" animate={false} />
-            ))}
+          <Parameters 
+            svgContent={svgContent} 
+            svgInfo={svgInfo} 
+            onGenerateGCODE={handleGenerateGCODE}
+            isGenerating={isGenerating}
+            onDownloadGCODE={handleDownloadGCODE}
+            gcodeContent={gcodeContent}
+          />
         </AppShell.Navbar>
 
         <AppShell.Main className="main-content">
-          <div className="dropzone-container">
-            <Dropzone
-              onDrop={(files) => {
-                const file = files[0];
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                  const content = event.target.result;
-                  console.log('File content:', content);
-                };
-                reader.readAsText(file);
-              }}
-              maxSize={5 * 1024 ** 2}
-              accept={['image/svg+xml']}
-              h="100%"
-              w="100%"
-              className="dropzone"
-              multiple={false}
-            >
-              <Dropzone.Idle>
-                <Container h="100%" fluid className="dropzone-content">
-                  <Text size="xl" inline>
-                    Drop SVG here or click to upload
-                  </Text>
-                  <Text size="sm" c="dimmed" inline mt={7}>
-                    File size should not exceed 5mb
-                  </Text>
-                </Container>
-              </Dropzone.Idle>
-            </Dropzone>
+          <div className="viewer-container">
+            {viewerState === 'Upload' ? (
+              <SVGDropzone onUpload={handleSVGUpload} />
+            ) : viewerState === 'SVG' ? (
+              <SVGViewer svgContent={svgContent} />
+            ) : viewerState === 'GCode' ? (
+              <GCODEViewer gcodeContent={gcodeContent} />
+            ) : null}
           </div>
+          <BottomBar
+            viewerState={viewerState}
+            setViewerState={setViewerState}
+            svgInfo={svgInfo}
+          />
         </AppShell.Main>
       </AppShell>
     </MantineProvider>
