@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { MantineProvider, AppShell, Burger, Group, Title } from '@mantine/core';
+import { useState } from 'react';
+import { MantineProvider, AppShell, Burger, Group, Title, Modal, Button } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import '@mantine/core/styles.css';
 import './index.css'
@@ -22,14 +22,23 @@ function App() {
     width: 0,
     height: 0,
     outputFile: "output",
-    polylineTolerance: 0.5,
+    polylineTolerance: 0.25,
     clearance: 5,
     feedrate: 5000,
     flipVertically: false,
     flipHorizontally: false,
     svgContent: null,
   });
-  const [paramsChanged, setParamsChanged] = useState(false);
+  const [plotData, setPlotData] = useState(null);
+  const [gcodeOutdated, setGcodeOutdated] = useState(false);
+  const [showTravel, setShowTravel] = useState(true);
+  const [showSizeWarning, setShowSizeWarning] = useState(false);
+  const [resizing, setResizing] = useState(false);
+
+  const handleParamChange = (newParams) => {
+    setParams(newParams);
+    setGcodeOutdated(true);
+  };
 
   const handleSVGUpload = (content, filename) => {
     setSvgContent(content);
@@ -52,10 +61,14 @@ function App() {
       } else {
         width = 0;
         height = 0;
+        setShowSizeWarning(true);
+        setResizing(true);
       }
     } else {
       width = 0;
       height = 0;
+      setShowSizeWarning(true);
+      setResizing(true);
     }
 
     const outputFilename = filename.replace(/\.svg$/i, '');
@@ -69,14 +82,12 @@ function App() {
       height,
       outputFile: outputFilename,
     }));
-    setParamsChanged(false);
   };
 
   const handleGenerateGCODE = async () => {
     setIsGenerating(true);
     try {
-      const response = await fetch('http://sofia-plotter:8082/process-svg', {
-      // const response = await fetch('http://localhost:8082/process-svg', {
+      const response = await fetch('http://localhost:8082/process-svg', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -94,8 +105,12 @@ function App() {
       const result = await response.json();
       console.log(result);
       setGcodeContent(result.gcode);
-      setParamsChanged(false);
-      setViewerState('GCode');
+      setPlotData({
+        regularMoves: JSON.parse(result.plotData.regularMoves),
+        travelMoves: JSON.parse(result.plotData.travelMoves)
+      });
+      setViewerState('GCODE');
+      setGcodeOutdated(false);
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -103,16 +118,16 @@ function App() {
     }
   };
 
-  const handleParamsChange = (newParams) => {
-    setParams(newParams);
-    setParamsChanged(true);
-  };
 
   const handleDownloadGCODE = (params) => {
-    if (gcodeContent && !paramsChanged) {
+    if (gcodeContent) {
       const blob = new Blob([atob(gcodeContent)], { type: 'text/plain;charset=utf-8' });
       saveAs(blob, `${params.outputFile}.gcode`);
     }
+  };
+
+  const toggleTravel = () => {
+    setShowTravel(!showTravel);
   };
 
   return (
@@ -132,12 +147,14 @@ function App() {
         <AppShell.Navbar p="md">
           <Parameters 
             params={params}
-            onParamsChange={handleParamsChange}
+            setParams={handleParamChange}
             onGenerateGCODE={handleGenerateGCODE}
             isGenerating={isGenerating}
             onDownloadGCODE={handleDownloadGCODE}
             gcodeContent={gcodeContent}
-            paramsChanged={paramsChanged}
+            gcodeOutdated={gcodeOutdated}
+            resizing={resizing}
+            setResizing={setResizing}
           />
         </AppShell.Navbar>
 
@@ -148,16 +165,26 @@ function App() {
             ) : viewerState === 'SVG' ? (
               <SVGViewer svgContent={svgContent} />
             ) : viewerState === 'GCODE' ? (
-              <GCODEViewer gcodeContent={gcodeContent} />
+              <GCODEViewer plotData={plotData} showTravel={showTravel} />
             ) : null}
           </div>
           <BottomBar
             viewerState={viewerState}
             setViewerState={setViewerState}
             svgInfo={svgInfo}
+            showTravel={showTravel}
+            toggleTravel={toggleTravel}
           />
         </AppShell.Main>
       </AppShell>
+      <Modal
+        opened={showSizeWarning}
+        onClose={() => setShowSizeWarning(false)}
+        title="Warning: SVG Size"
+      >
+        <p>Your SVG did not contain any unit data. Please specify a size in the parameters sidebar.</p>
+        <Button onClick={() => setShowSizeWarning(false)}>OK</Button>
+      </Modal>
     </MantineProvider>
   )
 }

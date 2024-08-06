@@ -1,9 +1,19 @@
-import { Stack, TextInput, NumberInput, Divider, Button, Title, Text, Checkbox, Group } from '@mantine/core';
+import { useState } from 'react';
+import { Stack, TextInput, NumberInput, Divider, Button, Title, Text, Checkbox } from '@mantine/core';
 
-function Parameters({ params, onParamsChange, onGenerateGCODE, isGenerating, onDownloadGCODE, gcodeContent, paramsChanged }) {
-
+function Parameters({ 
+  params, 
+  setParams, 
+  onGenerateGCODE, 
+  isGenerating, 
+  onDownloadGCODE, 
+  gcodeContent, 
+  gcodeOutdated, 
+  resizing, 
+  setResizing
+ }) {
   const handleParamChange = (key, value) => {
-    onParamsChange({ ...params, [key]: value });
+    setParams({ ...params, [key]: value });
   };
 
   return (
@@ -11,9 +21,19 @@ function Parameters({ params, onParamsChange, onGenerateGCODE, isGenerating, onD
       <Stack gap='0.5rem'>
         <Title mb='md' order={4}>Parameters:</Title>
 
+        <Checkbox
+          label="Resize"
+          min={0}
+          checked={resizing}
+          onChange={(event) => setResizing(event.currentTarget.checked)}
+        />          
         <NumberInput
           label="Width"
+          min={0}
           value={params.width}
+          disabled={!resizing}
+          required={resizing}
+          error={resizing && params.width === 0 ? 'Width is required' : null}
           suffix='mm'
           onChange={(value) => handleParamChange('width', value)}
         /> 
@@ -21,9 +41,21 @@ function Parameters({ params, onParamsChange, onGenerateGCODE, isGenerating, onD
         <NumberInput
           label="Height"
           value={params.height}
+          disabled={!resizing}
+          required={resizing}
+          error={resizing && params.height === 0 ? 'Height is required' : null}
           suffix='mm'
           onChange={(value) => handleParamChange('height', value)}
         /> 
+
+        <Divider mt='xs' mb='xs' />   
+
+        <Checkbox
+          label="Flip vertically (not implemented)"
+          disabled={true}
+          checked={params.flipVertically}
+          onChange={(event) => handleParamChange('flipVertically', event.currentTarget.checked)}
+        />
 
         <NumberInput
           label="Polyline tolerance"
@@ -56,7 +88,7 @@ function Parameters({ params, onParamsChange, onGenerateGCODE, isGenerating, onD
       </Stack>
       <Stack gap='xs'>
         <Button 
-          disabled={!params.svgContent} 
+          disabled={!params.svgContent || params.width == 0 || params.height == 0} 
           color='green' 
           onClick={onGenerateGCODE}
           loading={isGenerating}
@@ -64,7 +96,7 @@ function Parameters({ params, onParamsChange, onGenerateGCODE, isGenerating, onD
           {isGenerating ? 'Generating...' : 'Generate GCODE'}
         </Button>
         <Button 
-          disabled={!gcodeContent || paramsChanged} 
+          disabled={!gcodeContent || gcodeOutdated} 
           onClick={() => onDownloadGCODE(params)}
         >
           Download GCODE

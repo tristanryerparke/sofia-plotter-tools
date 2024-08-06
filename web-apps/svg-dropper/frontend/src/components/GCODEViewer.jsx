@@ -1,37 +1,61 @@
-import React from 'react';
+import { useState } from 'react';
 import Plot from 'react-plotly.js';
 import { Container, Text } from '@mantine/core';
 
-function GCODEViewer({ gcodeContent }) {
-  const genericData = [
-    {
-      x: [1, 2, 3, 4],
-      y: [10, 15, 13, 17],
+function GCODEViewer({ plotData, showTravel }) {
+  if (!plotData) {
+    return (
+      <Container h='100%' w='100%' style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Text>No GCODE Generated</Text>
+      </Container>
+    );
+  }
+
+  const { regularMoves, travelMoves } = plotData;
+
+  const data = [
+    ...travelMoves.map((move, index) => ({
+      x: move.map(point => point[0]),
+      y: move.map(point => point[1]),
       type: 'scatter',
-      mode: 'lines+markers',
-      marker: {color: 'blue'},
-    }
+      mode: 'lines',
+      line: { color: 'red', width: 1 },
+      name: 'Travel',
+      legendgroup: 'Travel',
+      showlegend: index === 0,
+      visible: showTravel,
+      hovertemplate: `Travel Move ${index + 1}<br>X: %{x:.2f}<br>Y: %{y:.2f}<extra></extra>`,
+      zIndex: 1,
+    })),
+    ...regularMoves.map((move, index) => ({
+      x: move.map(point => point[0]),
+      y: move.map(point => point[1]),
+      type: 'scatter',
+      mode: 'lines',
+      line: { color: 'blue', width: 1 },
+      name: 'Drawing',
+      legendgroup: 'Drawing',
+      showlegend: index === 0,
+      hovertemplate: `Curve ${index + 1}<br>X: %{x:.2f}<br>Y: %{y:.2f}<extra></extra>`,
+      zIndex: 2,
+    })),
   ];
 
   const layout = {
-    title: 'GCODE Visualization (Not yet implemented)',
-    xaxis: {title: 'X Axis'},
-    yaxis: {title: 'Y Axis'},
+    title: 'GCODE Visualization',
+    xaxis: { title: 'X Axis' },
+    yaxis: { title: 'Y Axis', scaleanchor: 'x', scaleratio: 1 },
     autosize: true,
   };
 
   return (
     <Container h='100%' w='100%' style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      {/* {gcodeContent ? ( */}
-        <Plot
-          data={genericData}
-          layout={layout}
-          style={{ width: '100%', height: '100%' }}
-          useResizeHandler={true}
-        />
-      {/* ) : (
-        <Text>No GCODE Generated</Text>
-      )} */}
+      <Plot
+        data={data}
+        layout={layout}
+        style={{ width: '100%', height: '100%', padding: '0' }}
+        useResizeHandler={true}
+      />
     </Container>
   );
 }

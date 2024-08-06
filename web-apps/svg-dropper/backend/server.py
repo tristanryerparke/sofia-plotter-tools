@@ -8,6 +8,10 @@ import os
 import json
 import sys
 import numpy as np
+from xml.etree import ElementTree as ET
+import re
+
+from utils import create_gcode, strip_svg_units, extract_viewbox, truncate_decimals
 
 app = FastAPI()
 
@@ -19,33 +23,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def create_gcode(strokes, z_lift, size, feedrate=20000):
-    gcodefile = [
-        'var start = state.upTime',
-        'G21',
-        f'G1 F{feedrate}'
-    ]
-
-    paths_out = []
-
-    for path in strokes:
-        new_path = [pt for pt in path if 0 <= pt[0] <= size[0] and 0 <= pt[1] <= size[1]]
-
-        if len(new_path) > 1:
-            new_path = np.array(new_path)
-            gcodefile.append(f'G1 Z{z_lift:.2f}')
-            gcodefile.append(f'G0 X{new_path[0][0]:.2f} Y{new_path[0][1]:.2f}')
-
-            for pt in new_path:
-                gcodefile.append(f'G1 X{pt[0]:.2f} Y{pt[1]:.2f} Z0')
-            
-            gcodefile.append(f'G1 Z{z_lift:.2f}')
-            paths_out.append(new_path)
-
-    gcodefile.append('echo >>"/sys/summary.txt" {job.lastFileName}, " took ", {(state.upTime - var.start)/60}, "minutes"')
-
-    gcode_all = '\n'.join(gcodefile)
-    return gcode_all, paths_out
 
 class SVGParams(BaseModel):
     width: float
@@ -64,7 +41,12 @@ class SVGData(BaseModel):
 @app.post("/process-svg")
 async def process_svg(data: SVGData):
     try:
-        svg_data = base64.b64decode(data.svg_base64)
+        svg_data = base64.b64decode(data.svg_base64).decode()
+
+        svg_data = strip_svg_units(svg_data)
+        
+        vb_min_x, vb_min_y, vb_width, vb_height = extract_viewbox(svg_data)
+
         with tempfile.NamedTemporaryFile(delete=False, suffix='.svg') as temp_svg:
             temp_svg.write(svg_data)
             temp_svg_path = temp_svg.name
@@ -75,7 +57,9 @@ async def process_svg(data: SVGData):
         tolerance_str = f"{data.params.polylineTolerance:.2f}"
 
         vpype_path = os.path.join(os.path.dirname(sys.executable), 'vpype')
+        
         command = f"'{vpype_path}' -c plot.toml read {temp_svg_path} linemerge -t 1 linesort linesimplify -t {tolerance_str} gwrite --profile json_t {temp_json_path}"
+        print(command)
         subprocess.run(command, shell=True, check=True)
 
         with open(temp_json_path, 'r') as f:
@@ -86,11 +70,15 @@ async def process_svg(data: SVGData):
 
         layer_data = json_data['Layer']
 
-        # Convert to list of numpy arrays
-        numpy_arrays = [np.array([(point['X'], point['Y']) for point in line]) 
+        # Calculate scaling factors
+        scale_x = data.params.width / vb_width
+        scale_y = data.params.height / vb_height
+
+        # Convert to list of numpy arrays and scale
+        numpy_arrays = [np.array([((point['X'] - vb_min_x) * scale_x, (point['Y'] - vb_min_y) * scale_y) for point in line]) 
                         for line in layer_data.values()]
         
-        gcode, paths_out = create_gcode(
+        gcode, regular_moves, travel_moves = create_gcode(
             numpy_arrays,
             z_lift=data.params.clearance,
             size=(data.params.width, data.params.height),
@@ -99,8 +87,17 @@ async def process_svg(data: SVGData):
         
         # Encode gcode as base64
         gcode_base64 = base64.b64encode(gcode.encode()).decode()
+
+        print(travel_moves)
         
-        return {"message": "SVG processed successfully", "gcode": gcode_base64}
+        return {
+            "message": "SVG processed successfully",
+            "gcode": gcode_base64,
+            "plotData": {
+                "regularMoves": truncate_decimals(regular_moves),
+                "travelMoves": truncate_decimals(travel_moves)
+            },
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
