@@ -1,5 +1,3 @@
-name: Deploy Plotter Pi Software
-
 on:
   push:
     branches: [ main ]
@@ -13,10 +11,18 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Stop frontend and backend services
+    - name: Stop and disable services
       run: |
         sudo systemctl stop serve-svg-dropper-frontend.service
         sudo systemctl stop serve-svg-dropper-backend.service
+        sudo systemctl disable serve-svg-dropper-frontend.service
+        sudo systemctl disable serve-svg-dropper-backend.service
+
+    - name: Update service files
+      run: |
+        sudo cp systemd/serve-svg-dropper-frontend.service /etc/systemd/system/
+        sudo cp systemd/serve-svg-dropper-backend.service /etc/systemd/system/
+        sudo systemctl daemon-reload
 
     - name: Source bash
       run: source ~/.bashrc
@@ -31,8 +37,10 @@ jobs:
     - name: Build Frontend
       run: cd web-apps/svg-dropper/frontend && /home/pi/.bun/bin/bun i && npm run build
       
-    - name: Start backend and frontend services
+    - name: Enable and start services
       run: |
+        sudo systemctl enable serve-svg-dropper-backend.service
+        sudo systemctl enable serve-svg-dropper-frontend.service
         sudo systemctl start serve-svg-dropper-backend.service
         sudo systemctl start serve-svg-dropper-frontend.service
         sudo systemctl status serve-svg-dropper-backend.service
