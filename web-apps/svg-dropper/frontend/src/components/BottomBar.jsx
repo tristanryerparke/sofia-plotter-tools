@@ -9,7 +9,7 @@ function BottomBar({ viewerState, setViewerState, svgInfo }) {
       <SegmentedControl
         value={viewerState}
         onChange={setViewerState}
-        data={['Upload', 'SVG', 'GCode']}
+        data={['Upload', 'SVG', 'GCODE']}
       />
       <Text size='sm' align="right" pb='0.25rem' w='20%'>
         {viewerState === 'SVG' && `Size: ${svgInfo.width} x ${svgInfo.height} mm`}

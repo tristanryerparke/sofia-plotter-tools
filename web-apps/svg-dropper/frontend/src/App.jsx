@@ -18,6 +18,18 @@ function App() {
   const [svgInfo, setSvgInfo] = useState({ width: 0, height: 0, filename: '', pathCount: 0 });
   const [gcodeContent, setGcodeContent] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [params, setParams] = useState({
+    width: 0,
+    height: 0,
+    outputFile: "output",
+    polylineTolerance: 0.5,
+    clearance: 5,
+    feedrate: 5000,
+    flipVertically: false,
+    flipHorizontally: false,
+    svgContent: null,
+  });
+  const [paramsChanged, setParamsChanged] = useState(false);
 
   const handleSVGUpload = (content, filename) => {
     setSvgContent(content);
@@ -50,18 +62,27 @@ function App() {
     const pathCount = svgDoc.getElementsByTagNameNS("http://www.w3.org/2000/svg", "path").length;
 
     setSvgInfo({ width, height, filename: outputFilename, pathCount });
+    setParams(prevParams => ({
+      ...prevParams,
+      svgContent: content,
+      width,
+      height,
+      outputFile: outputFilename,
+    }));
+    setParamsChanged(false);
   };
 
-  const handleGenerateGCODE = async (params) => {
+  const handleGenerateGCODE = async () => {
     setIsGenerating(true);
     try {
-      const response = await fetch('http://sofia-plotter.local:8082/process-svg', {
+      const response = await fetch('http://sofia-plotter:8082/process-svg', {
+      // const response = await fetch('http://localhost:8082/process-svg', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          svg_base64: btoa(svgContent),
+          svg_base64: btoa(params.svgContent),
           params: params,
         }),
       });
@@ -73,6 +94,7 @@ function App() {
       const result = await response.json();
       console.log(result);
       setGcodeContent(result.gcode);
+      setParamsChanged(false);
       setViewerState('GCode');
     } catch (error) {
       console.error('Error:', error);
@@ -81,10 +103,15 @@ function App() {
     }
   };
 
-  const handleDownloadGCODE = () => {
-    if (gcodeContent) {
+  const handleParamsChange = (newParams) => {
+    setParams(newParams);
+    setParamsChanged(true);
+  };
+
+  const handleDownloadGCODE = (params) => {
+    if (gcodeContent && !paramsChanged) {
       const blob = new Blob([atob(gcodeContent)], { type: 'text/plain;charset=utf-8' });
-      saveAs(blob, `${svgInfo.filename}.gcode`);
+      saveAs(blob, `${params.outputFile}.gcode`);
     }
   };
 
@@ -104,12 +131,13 @@ function App() {
         </AppShell.Header>
         <AppShell.Navbar p="md">
           <Parameters 
-            svgContent={svgContent} 
-            svgInfo={svgInfo} 
+            params={params}
+            onParamsChange={handleParamsChange}
             onGenerateGCODE={handleGenerateGCODE}
             isGenerating={isGenerating}
             onDownloadGCODE={handleDownloadGCODE}
             gcodeContent={gcodeContent}
+            paramsChanged={paramsChanged}
           />
         </AppShell.Navbar>
 
@@ -119,7 +147,7 @@ function App() {
               <SVGDropzone onUpload={handleSVGUpload} />
             ) : viewerState === 'SVG' ? (
               <SVGViewer svgContent={svgContent} />
-            ) : viewerState === 'GCode' ? (
+            ) : viewerState === 'GCODE' ? (
               <GCODEViewer gcodeContent={gcodeContent} />
             ) : null}
           </div>
