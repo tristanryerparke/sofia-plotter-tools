@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Stack, TextInput, NumberInput, Divider, Button, Title, Text, Checkbox } from '@mantine/core';
+import {IconCheck} from '@tabler/icons-react';
 
 function Parameters({ 
   params, 
@@ -15,6 +16,9 @@ function Parameters({
   const handleParamChange = (key, value) => {
     setParams({ ...params, [key]: value });
   };
+
+  const [uploadedToPlotter, setUploadedToPlotter] = useState(false);
+
 
   return (
     <Stack justify='space-between' h='100%'>
@@ -90,7 +94,10 @@ function Parameters({
         <Button 
           disabled={!params.svgContent || params.width == 0 || params.height == 0} 
           color='green' 
-          onClick={onGenerateGCODE}
+          onClick={() => {
+            setUploadedToPlotter(false);
+            onGenerateGCODE();
+          }}
           loading={isGenerating}
         >
           {isGenerating ? 'Generating...' : 'Generate GCODE'}
@@ -102,14 +109,16 @@ function Parameters({
           Download GCODE
         </Button>
         <Button 
+          rightSection={uploadedToPlotter ? <IconCheck size={16} /> : null}
           disabled={!gcodeContent || gcodeOutdated} 
           onClick={async () => {
-            await fetch('http://sofia-plotter:8082/send-gcode', {
+            await fetch('http://localhost:8082/send-gcode', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
             });
+            setUploadedToPlotter(true);
           }}
         >
           Send GCODE to plotter

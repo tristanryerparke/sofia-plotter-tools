@@ -46,21 +46,35 @@ async def send_gcode():
     global current_gcode_text
     global filename
 
-    ip = 'localhost'
-    # ip = 'sofia-plotter'
+    # ip = 'localhost'
+    ip = 'sofia-plotter'
 
     conn_res = requests.get(f'http://{ip}/machine/connect')
     session_key = conn_res.json()['sessionKey']
 
-    # check if file exists
-    file_exists_res = requests.get(
-        f'http://{ip}/machine/fileinfo/gcodes/{filename}',
-        headers={'X-Session-Key': session_key},
-    )
+    while True:
 
-    if file_exists_res.status_code == 200:
-        if filename.split('.')[0][-1].isdigit():
-            filename = filename.split('.')[0][:-1] + '_' + str(int(filename.split('.')[0][-1]) + 1)
+        # check if file exists
+        file_exists_res = requests.get(
+            f'http://{ip}/machine/fileinfo/gcodes/{filename}.gcode',
+            headers={'X-Session-Key': session_key},
+        )
+
+        try:
+            file_exists_res.json()
+        except:
+            break
+
+        if file_exists_res.status_code == 200:
+            print('File exists')
+            match = re.match(r'^(.*?)(\((\d+)\))?$', filename.split('.')[0])
+            if match:
+                base, _, num = match.groups()
+                num = int(num) + 1 if num else 2
+                filename = f"{base}({num})"
+            print(f'New filename: {filename}')
+
+    
 
     print(current_gcode_text[:100])
 
@@ -130,7 +144,6 @@ async def process_svg(data: SVGData):
         # Encode gcode as base64
         gcode_base64 = base64.b64encode(gcode.encode()).decode()
 
-        print(travel_moves)
         
         return {
             "message": "SVG processed successfully",

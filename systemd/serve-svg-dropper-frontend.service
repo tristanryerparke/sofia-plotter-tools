@@ -3,7 +3,7 @@ Description=Frontend Server
 After=network.target
 
 [Service]
-ExecStart=/home/pi/sofia-plotter/bin/python -m http.server 8081
+ExecStart=/home/pi/actions-runner/_work/sofia-plotter/sofia-plotter/web-apps/svg-dropper/frontend/node_modules/http-server/bin/http-server -p 8081
 WorkingDirectory=/home/pi/actions-runner/_work/sofia-plotter/sofia-plotter/web-apps/svg-dropper/frontend/dist
 Restart=on-failure
 RestartSec=5
