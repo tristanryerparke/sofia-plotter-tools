@@ -46,8 +46,8 @@ async def send_gcode():
     global current_gcode_text
     global filename
 
-    # ip = 'localhost'
-    ip = 'sofia-plotter'
+    ip = 'localhost'
+    # ip = 'sofia-plotter'
 
     conn_res = requests.get(f'http://{ip}/machine/connect')
     session_key = conn_res.json()['sessionKey']

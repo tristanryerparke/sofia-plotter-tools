@@ -112,7 +112,7 @@ function Parameters({
           rightSection={uploadedToPlotter ? <IconCheck size={16} /> : null}
           disabled={!gcodeContent || gcodeOutdated} 
           onClick={async () => {
-            await fetch('http://localhost:8082/send-gcode', {
+            await fetch('http://sofia-plotter:8082/send-gcode', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
