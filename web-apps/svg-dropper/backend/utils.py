@@ -62,7 +62,7 @@ def create_gcode(strokes, z_lift, size, feedrate=10000):
                 gcodefile.append(f'G1 X{pt2[0]:.2f} Y{pt2[1]:.2f} Z0')
                 total_length += np.linalg.norm(pt2 - pt1)
             
-            gcodefile.append(f'G1 Z{z_lift:.2f}')
+            
             paths_out.append(new_path)
             regular_moves.append(new_path.tolist())
             
@@ -95,7 +95,7 @@ def create_gcode(strokes, z_lift, size, feedrate=10000):
         if current_path:
             process_path(current_path)
 
-
+    gcodefile.append(f'G1 Z{z_lift:.2f}')
 
     gcodefile.append('echo >>"/sys/summary.txt" {job.lastFileName}, " took ", {(state.upTime - var.start)/60}, "minutes"')
 
