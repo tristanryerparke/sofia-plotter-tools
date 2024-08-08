@@ -11,6 +11,9 @@ import numpy as np
 import requests
 from xml.etree import ElementTree as ET
 import re
+import traceback
+from svgpathtools import svg2paths2, wsvg
+from io import StringIO
 
 from utils import create_gcode, strip_svg_units, extract_viewbox, truncate_decimals
 
@@ -97,14 +100,22 @@ async def process_svg(data: SVGData):
     global current_gcode_text
     global filename
     try:
-        svg_data = base64.b64decode(data.svg_base64).decode()
+        svg_data = base64.b64decode(data.svg_base64).decode('utf-8')
+        print(f'svg_data[:100]: {svg_data[:100]}')
 
         svg_data = strip_svg_units(svg_data)
+
         
         vb_min_x, vb_min_y, vb_width, vb_height = extract_viewbox(svg_data)
 
+
+        # Flatten the SVG
+        paths, attributes, svg_attributes = svg2paths2(StringIO(svg_data))
+        wsvg(paths, attributes=attributes, svg_attributes=svg_attributes, filename='test.svg')
+        flattened_svg_data = open('test.svg', 'r').read()
+
         with tempfile.NamedTemporaryFile(delete=False, suffix='.svg') as temp_svg:
-            temp_svg.write(svg_data)
+            temp_svg.write(flattened_svg_data.encode())
             temp_svg_path = temp_svg.name
 
         with tempfile.NamedTemporaryFile(delete=False, suffix='.json') as temp_json:
@@ -160,8 +171,15 @@ async def process_svg(data: SVGData):
             },
         }
     except Exception as e:
+        traceback.print_exc()
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="localhost", port=8082)
+    uvicorn.run(
+        app,
+        host="localhost",
+        port=8082,
+        log_level="debug"
+    )

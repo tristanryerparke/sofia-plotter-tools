@@ -3,6 +3,7 @@ import json
 from typing import Tuple
 import xml.etree.ElementTree as ET
 import re
+from lxml import etree
 
 def truncate_decimals(data, decimal_places=3):
     """Truncate all floating point numbers in a nested list structure to a specified number of decimal places."""
@@ -34,13 +35,14 @@ def extract_viewbox(svg_data: str, default_width: float = 100, default_height: f
 
 def strip_svg_units(svg_data: str) -> str:
     """Removes units from width and height attributes"""
-    root = ET.fromstring(svg_data)
+    
+    root = etree.fromstring(svg_data.encode('utf-8'))
     
     for attr in ['width', 'height']:
         if attr in root.attrib:
             root.attrib[attr] = re.sub(r'[a-z]+$', '', root.attrib[attr])
     
-    return ET.tostring(root)
+    return etree.tostring(root, pretty_print=True, encoding='unicode')
 
 
 def create_gcode(strokes, z_lift, size, feedrate=10000):

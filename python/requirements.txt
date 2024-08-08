@@ -6,3 +6,4 @@ vpype
 vpype-gcode
 numpy
 requests
+lxml
