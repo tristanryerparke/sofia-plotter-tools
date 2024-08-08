@@ -46,8 +46,11 @@ async def send_gcode():
     global current_gcode_text
     global filename
 
-    ip = 'localhost'
-    # ip = 'sofia-plotter'
+    if os.getenv('VITE_SVG2G_IS_PROD') == 'False':
+        ip = 'sofia-plotter'
+    else:
+        ip = 'localhost'
+
 
     conn_res = requests.get(f'http://{ip}/machine/connect')
     session_key = conn_res.json()['sessionKey']
@@ -120,6 +123,9 @@ async def process_svg(data: SVGData):
 
         os.unlink(temp_svg_path)
         os.unlink(temp_json_path)
+
+        with open('test.json', 'w') as f:
+            json.dump(json_data, f, indent=2)
 
         layer_data = json_data['Layer']
 

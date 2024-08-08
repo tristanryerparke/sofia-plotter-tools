@@ -112,7 +112,8 @@ function Parameters({
           rightSection={uploadedToPlotter ? <IconCheck size={16} /> : null}
           disabled={!gcodeContent || gcodeOutdated} 
           onClick={async () => {
-            await fetch('http://sofia-plotter:8082/send-gcode', {
+            const ip = import.meta.env.VITE_SVG2G_IS_PROD === 'False' ? 'sofia-plotter' : 'localhost';
+            await fetch(`http://${ip}:8082/send-gcode`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
