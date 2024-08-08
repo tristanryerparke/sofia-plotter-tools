@@ -5,3 +5,4 @@ svgpathtools
 vpype
 vpype-gcode
 numpy
+requests

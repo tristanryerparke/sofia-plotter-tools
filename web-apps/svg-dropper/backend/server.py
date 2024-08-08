@@ -8,6 +8,7 @@ import os
 import json
 import sys
 import numpy as np
+import requests
 from xml.etree import ElementTree as ET
 import re
 
@@ -23,6 +24,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+current_gcode_text = ''
+filename = ''
 
 class SVGParams(BaseModel):
     width: float
@@ -38,8 +41,44 @@ class SVGData(BaseModel):
     svg_base64: str
     params: SVGParams
 
+@app.post("/send-gcode")
+async def send_gcode():
+    global current_gcode_text
+    global filename
+
+    ip = 'localhost'
+    # ip = 'sofia-plotter'
+
+    conn_res = requests.get(f'http://{ip}/machine/connect')
+    session_key = conn_res.json()['sessionKey']
+
+    # check if file exists
+    file_exists_res = requests.get(
+        f'http://{ip}/machine/fileinfo/gcodes/{filename}',
+        headers={'X-Session-Key': session_key},
+    )
+
+    if file_exists_res.status_code == 200:
+        if filename.split('.')[0][-1].isdigit():
+            filename = filename.split('.')[0][:-1] + '_' + str(int(filename.split('.')[0][-1]) + 1)
+
+    print(current_gcode_text[:100])
+
+    conn_res = requests.put(
+        f'http://{ip}/machine/file/gcodes/{filename}.gcode',
+        current_gcode_text,
+        headers={'X-Session-Key': session_key},
+    )
+    print(conn_res.status_code)
+    print(conn_res.text)
+
+    if conn_res.status_code != 201:
+        raise HTTPException(status_code=500, detail="Failed to send GCODE to plotter")
+
 @app.post("/process-svg")
 async def process_svg(data: SVGData):
+    global current_gcode_text
+    global filename
     try:
         svg_data = base64.b64decode(data.svg_base64).decode()
 
@@ -84,6 +123,9 @@ async def process_svg(data: SVGData):
             size=(data.params.width, data.params.height),
             feedrate=data.params.feedrate
         )
+
+        current_gcode_text = gcode
+        filename = f"{data.params.outputFile}"
         
         # Encode gcode as base64
         gcode_base64 = base64.b64encode(gcode.encode()).decode()

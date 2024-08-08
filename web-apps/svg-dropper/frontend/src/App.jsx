@@ -11,6 +11,8 @@ import SVGViewer from './components/SVGViewer';
 import GCODEViewer from './components/GCODEViewer';
 import BottomBar from './components/BottomBar';
 
+
+
 function App() {
   const [opened, { toggle }] = useDisclosure();
   const [viewerState, setViewerState] = useState('Upload');

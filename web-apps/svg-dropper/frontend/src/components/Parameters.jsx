@@ -101,7 +101,19 @@ function Parameters({
         >
           Download GCODE
         </Button>
-        <Button disabled={true}>Send GCODE to plotter</Button>
+        <Button 
+          disabled={!gcodeContent || gcodeOutdated} 
+          onClick={async () => {
+            await fetch('http://sofia-plotter:8082/send-gcode', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+          }}
+        >
+          Send GCODE to plotter
+        </Button>
       </Stack>
     </Stack>
   );

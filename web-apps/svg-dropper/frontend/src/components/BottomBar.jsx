@@ -1,27 +1,31 @@
-import { Group, SegmentedControl, Text, Button } from '@mantine/core';
+import { Group, SegmentedControl, Text, Button, Grid } from '@mantine/core';
 
 function BottomBar({ viewerState, setViewerState, svgInfo, showTravel, toggleTravel }) {
   return (
-    <Group justify="space-between" align="flex-end" w="100%" pb={0} p='sm'>
-      <Group>
+    <Grid w="100%" pb={0} p='sm' h='3rem'>
+      <Grid.Col span={4} align="left">
         {viewerState === 'GCODE' && (
           <Button onClick={toggleTravel} variant='outline' size="sm" w='8rem'>
             {showTravel ? 'Hide Travel' : 'Show Travel'}
           </Button>
         )}
-        <Text size='sm' align="left" pb='0.25rem'>
+        <Text size='sm'>
           {viewerState === 'SVG' && `Paths: ${svgInfo.pathCount}`}
         </Text>
-      </Group>
-      <SegmentedControl
-        value={viewerState}
-        onChange={setViewerState}
-        data={['Upload', 'SVG', 'GCODE']}
-      />
-      <Text size='sm' align="right" pb='0.25rem' w='20%'>
-        {viewerState === 'SVG' && `Size: ${svgInfo.width} x ${svgInfo.height} mm`}
-      </Text>
-    </Group>
+      </Grid.Col>
+      <Grid.Col span={4} align="center" justify='center'>
+        <SegmentedControl
+          value={viewerState}
+          onChange={setViewerState}
+          data={['Upload', 'SVG', 'GCODE']}
+        />
+      </Grid.Col>
+      <Grid.Col span={4} align="right" justify='center'>
+        <Text size='sm' align="right">
+          {viewerState === 'SVG' && `Size: ${svgInfo.width} x ${svgInfo.height} mm`}
+        </Text>
+      </Grid.Col>
+    </Grid>
   );
 }
 
