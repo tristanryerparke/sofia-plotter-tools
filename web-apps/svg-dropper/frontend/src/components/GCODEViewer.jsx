@@ -41,10 +41,13 @@ function GCODEViewer({ plotData, showTravel }) {
     })),
   ];
 
+  const maxX = Math.max(...data.flatMap(d => d.x));
+  const maxY = Math.max(...data.flatMap(d => d.y));
+
   const layout = {
     title: 'GCODE Visualization',
-    xaxis: { title: 'X Axis' },
-    yaxis: { title: 'Y Axis', scaleanchor: 'x', scaleratio: 1 },
+    xaxis: { title: 'X Axis', range: [0, maxX] },
+    yaxis: { title: 'Y Axis', range: [0, maxY], scaleanchor: 'x', scaleratio: 1 },
     autosize: true,
   };
 

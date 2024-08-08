@@ -54,12 +54,12 @@ function Parameters({
 
         <Divider mt='xs' mb='xs' />   
 
-        <Checkbox
+        {/* <Checkbox
           label="Flip vertically (not implemented)"
           disabled={true}
           checked={params.flipVertically}
           onChange={(event) => handleParamChange('flipVertically', event.currentTarget.checked)}
-        />
+        /> */}
 
         <NumberInput
           label="Polyline tolerance"
