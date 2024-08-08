@@ -103,10 +103,19 @@ async def process_svg(data: SVGData):
     try:
         svg_data = base64.b64decode(data.svg_base64).decode('utf-8')
 
-        svg_data = strip_svg_units(svg_data)
+        print(f'svg_data[:100]: {svg_data[:200]}')
+
+        svg_data_stripped = strip_svg_units(svg_data)
+
+        print(f'svg_data_stripped[:100]: {svg_data_stripped[:200]}')
+
+        with open('test_save.svg', 'w') as f:
+            f.write(svg_data)
 
         
-        vb_min_x, vb_min_y, vb_width, vb_height = extract_viewbox(svg_data)
+        vb_min_x, vb_min_y, vb_width, vb_height = extract_viewbox(svg_data_stripped)
+
+        print(f'vb_min_x: {vb_min_x}, vb_min_y: {vb_min_y}, vb_width: {vb_width}, vb_height: {vb_height}')
 
 
         # Flatten the SVG
@@ -143,6 +152,12 @@ async def process_svg(data: SVGData):
         # Calculate scaling factors
         scale_x = data.params.width / vb_width
         scale_y = data.params.height / vb_height
+
+        print(f'data.params.width: {data.params.width}, data.params.height: {data.params.height}')
+
+        print(f'scale_x: {scale_x}, scale_y: {scale_y}')
+
+        print(f'new size: {data.params.width * scale_x}x{data.params.height * scale_y}')
 
         # Convert to list of numpy arrays and scale
         numpy_arrays = [np.array([((point['X'] - vb_min_x) * scale_x, (point['Y'] - vb_min_y) * scale_y) for point in line]) 

@@ -34,12 +34,12 @@ def extract_viewbox(svg_data: str, default_width: float = 100, default_height: f
         return 0, 0, default_width, default_height
 
 def strip_svg_units(svg_data: str) -> str:
-    """Removes units from width and height attributes"""
+    """Removes width and height attributes"""
     root = etree.fromstring(svg_data.encode('utf-8'))
     
     for attr in ['width', 'height']:
         if attr in root.attrib:
-            root.attrib[attr] = re.sub(r'[a-z]+$', '', root.attrib[attr])
+            del root.attrib[attr]
     
     return etree.tostring(root, pretty_print=True, encoding='unicode')
 
