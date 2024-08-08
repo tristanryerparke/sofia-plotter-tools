@@ -30,6 +30,7 @@ function App() {
     flipVertically: false,
     flipHorizontally: false,
     svgContent: null,
+    optimize: false,
   });
   const [plotData, setPlotData] = useState(null);
   const [gcodeOutdated, setGcodeOutdated] = useState(false);
@@ -110,7 +111,9 @@ function App() {
       setGcodeContent(result.gcode);
       setPlotData({
         regularMoves: JSON.parse(result.plotData.regularMoves),
-        travelMoves: JSON.parse(result.plotData.travelMoves)
+        travelMoves: JSON.parse(result.plotData.travelMoves),
+        totalLength: result.plotData.totalLength,
+        estimatedTimeMinutes: result.plotData.estimatedTimeMinutes
       });
       setViewerState('GCODE');
       setGcodeOutdated(false);
@@ -177,6 +180,7 @@ function App() {
             svgInfo={svgInfo}
             showTravel={showTravel}
             toggleTravel={toggleTravel}
+            plotData={plotData}
           />
         </AppShell.Main>
       </AppShell>

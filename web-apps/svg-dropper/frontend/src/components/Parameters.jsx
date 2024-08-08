@@ -21,9 +21,9 @@ function Parameters({
 
 
   return (
-    <Stack justify='space-between' h='100%'>
+    <Stack justify='space-between' h='100%' style={{overflowY: 'auto'}}>
       <Stack gap='0.5rem'>
-        <Title mb='md' order={4}>Parameters:</Title>
+        <Title order={4}>Parameters:</Title>
 
         <Checkbox
           label="Resize"
@@ -54,12 +54,11 @@ function Parameters({
 
         <Divider mt='xs' mb='xs' />   
 
-        {/* <Checkbox
-          label="Flip vertically (not implemented)"
-          disabled={true}
-          checked={params.flipVertically}
-          onChange={(event) => handleParamChange('flipVertically', event.currentTarget.checked)}
-        /> */}
+        <Checkbox
+          label="Optimize line sorting"
+          checked={params.optimize}
+          onChange={(event) => handleParamChange('optimize', event.currentTarget.checked)}
+        />
 
         <NumberInput
           label="Polyline tolerance"
@@ -112,7 +111,7 @@ function Parameters({
           rightSection={uploadedToPlotter ? <IconCheck size={16} /> : null}
           disabled={!gcodeContent || gcodeOutdated} 
           onClick={async () => {
-            const ip = import.meta.env.VITE_SVG2G_IS_PROD === 'False' ? 'sofia-plotter' : 'localhost';
+            const ip = import.meta.env.VITE_SVG2G_IS_PROD === 'False' ? 'localhost' : 'sofia-plotter';
             await fetch(`http://${ip}:8082/send-gcode`, {
               method: 'POST',
               headers: {

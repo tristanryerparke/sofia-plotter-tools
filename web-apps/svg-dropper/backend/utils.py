@@ -35,7 +35,6 @@ def extract_viewbox(svg_data: str, default_width: float = 100, default_height: f
 
 def strip_svg_units(svg_data: str) -> str:
     """Removes units from width and height attributes"""
-    
     root = etree.fromstring(svg_data.encode('utf-8'))
     
     for attr in ['width', 'height']:
@@ -46,9 +45,8 @@ def strip_svg_units(svg_data: str) -> str:
 
 
 def create_gcode(strokes, z_lift, size, feedrate=10000):
-
     def process_path(new_path):
-        nonlocal last_point
+        nonlocal last_point, total_length
         if len(new_path) > 1:
             new_path = np.array(new_path)
             gcodefile.append(f'G1 Z{z_lift:.2f}')
@@ -56,9 +54,13 @@ def create_gcode(strokes, z_lift, size, feedrate=10000):
 
             if last_point is not None:
                 travel_moves.append([last_point, new_path[0].tolist()])
+                total_length += np.linalg.norm(np.array(last_point) - np.array(new_path[0]))
 
-            for pt in new_path:
-                gcodefile.append(f'G1 X{pt[0]:.2f} Y{pt[1]:.2f} Z0')
+            for i in range(1, len(new_path)):
+                pt1 = new_path[i - 1]
+                pt2 = new_path[i]
+                gcodefile.append(f'G1 X{pt2[0]:.2f} Y{pt2[1]:.2f} Z0')
+                total_length += np.linalg.norm(pt2 - pt1)
             
             gcodefile.append(f'G1 Z{z_lift:.2f}')
             paths_out.append(new_path)
@@ -76,6 +78,7 @@ def create_gcode(strokes, z_lift, size, feedrate=10000):
     regular_moves = []
     travel_moves = []
     last_point = None
+    total_length = 0.0
 
     def point_in_bounds(pt):
         return 0 <= pt[0] <= size[0] and 0 <= pt[1] <= size[1]
@@ -97,4 +100,4 @@ def create_gcode(strokes, z_lift, size, feedrate=10000):
     gcodefile.append('echo >>"/sys/summary.txt" {job.lastFileName}, " took ", {(state.upTime - var.start)/60}, "minutes"')
 
     gcode_all = '\n'.join(gcodefile)
-    return gcode_all, regular_moves, travel_moves
+    return gcode_all, regular_moves, travel_moves, total_length

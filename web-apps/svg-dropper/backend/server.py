@@ -36,6 +36,7 @@ class SVGParams(BaseModel):
     outputFile: str
     polylineTolerance: float
     clearance: float
+    optimize: bool
     feedrate: int
     flipVertically: bool
     flipHorizontally: bool
@@ -101,7 +102,6 @@ async def process_svg(data: SVGData):
     global filename
     try:
         svg_data = base64.b64decode(data.svg_base64).decode('utf-8')
-        print(f'svg_data[:100]: {svg_data[:100]}')
 
         svg_data = strip_svg_units(svg_data)
 
@@ -125,7 +125,7 @@ async def process_svg(data: SVGData):
 
         vpype_path = os.path.join(os.path.dirname(sys.executable), 'vpype')
         
-        command = f"'{vpype_path}' -c plot.toml read {temp_svg_path} linemerge -t 1 linesort linesimplify -t {tolerance_str} gwrite --profile json_t {temp_json_path}"
+        command = f"'{vpype_path}' -c plot.toml read {temp_svg_path} linemerge -t 1 {'linesort -t' if data.params.optimize else ''} linesimplify -t {tolerance_str} gwrite --profile json_t {temp_json_path}"
         print(command)
         subprocess.run(command, shell=True, check=True)
 
@@ -148,7 +148,7 @@ async def process_svg(data: SVGData):
         numpy_arrays = [np.array([((point['X'] - vb_min_x) * scale_x, (point['Y'] - vb_min_y) * scale_y) for point in line]) 
                         for line in layer_data.values()]
         
-        gcode, regular_moves, travel_moves = create_gcode(
+        gcode, regular_moves, travel_moves, total_length = create_gcode(
             numpy_arrays,
             z_lift=data.params.clearance,
             size=(data.params.width, data.params.height),
@@ -161,14 +161,15 @@ async def process_svg(data: SVGData):
         # Encode gcode as base64
         gcode_base64 = base64.b64encode(gcode.encode()).decode()
 
-        
+
         return {
             "message": "SVG processed successfully",
             "gcode": gcode_base64,
             "plotData": {
                 "regularMoves": truncate_decimals(regular_moves),
-                "travelMoves": truncate_decimals(travel_moves)
-            },
+                "travelMoves": truncate_decimals(travel_moves),
+                "totalLength": total_length,
+            }
         }
     except Exception as e:
         traceback.print_exc()
