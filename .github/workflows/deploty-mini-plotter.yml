@@ -1,0 +1,47 @@
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  run-script:
+    #runs-on: self-hosted
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Stop and disable services
+      run: |
+        sudo systemctl stop serve-svg-dropper-frontend.service
+        sudo systemctl stop serve-svg-dropper-backend.service
+        sudo systemctl disable serve-svg-dropper-frontend.service
+        sudo systemctl disable serve-svg-dropper-backend.service
+
+    - name: Update service files
+      run: |
+        sudo cp systemd/serve-svg-dropper-frontend.service /etc/systemd/system/
+        sudo cp systemd/serve-svg-dropper-backend.service /etc/systemd/system/
+        sudo systemctl daemon-reload
+
+    - name: Source bash
+      run: source ~/.bashrc
+    
+    - name: Activate Python
+      run: |
+        source /home/pi/sofia-plotter/bin/activate
+        
+    - name: Install reqs
+      run: /home/pi/sofia-plotter/bin/pip install -r python/requirements.txt
+
+    - name: Build Frontend
+      run: cd web-apps/svg-dropper/frontend && /home/pi/.bun/bin/bun i && npm run build
+      
+    - name: Enable and start services
+      run: |
+        sudo systemctl enable serve-svg-dropper-backend.service
+        sudo systemctl enable serve-svg-dropper-frontend.service
+        sudo systemctl start serve-svg-dropper-backend.service
+        sudo systemctl start serve-svg-dropper-frontend.service
+        sudo systemctl status serve-svg-dropper-backend.service
+        sudo systemctl status serve-svg-dropper-frontend.service
