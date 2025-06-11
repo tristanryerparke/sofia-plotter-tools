@@ -90,7 +90,7 @@ function App() {
   const handleGenerateGCODE = async () => {
     setIsGenerating(true);
     try {
-      const ip = import.meta.env.VITE_SVG2G_IS_PROD === 'False' ? 'localhost' : 'sofia-plotter';
+      const ip = import.meta.env.VITE_SVG2G_IS_PROD === 'False' ? 'localhost' : 'sofia-mini-plotter';
       const response = await fetch(`http://${ip}:8082/process-svg`, {
         method: 'POST',
         headers: {
