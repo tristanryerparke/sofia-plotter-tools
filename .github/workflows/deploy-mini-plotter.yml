@@ -13,10 +13,10 @@ jobs:
 
     - name: Stop and disable services
       run: |
-        sudo systemctl stop serve-svg-dropper-frontend.service
-        sudo systemctl stop serve-svg-dropper-backend.service
-        sudo systemctl disable serve-svg-dropper-frontend.service
-        sudo systemctl disable serve-svg-dropper-backend.service
+        sudo systemctl stop serve-svg-dropper-frontend.service || true
+        sudo systemctl stop serve-svg-dropper-backend.service || true
+        sudo systemctl disable serve-svg-dropper-frontend.service || true
+        sudo systemctl disable serve-svg-dropper-backend.service || true
 
     - name: Update service files
       run: |
