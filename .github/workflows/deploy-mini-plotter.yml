@@ -34,8 +34,8 @@ jobs:
     - name: Install reqs
       run: /home/pi/sofia-plotter/bin/pip install -r python/requirements.txt
 
-    - name: Build Frontend
-      run: cd web-apps/svg-dropper/frontend && /home/pi/.bun/bin/bun i && /home/pi/.bun/bin/bunx --bun vite build
+    # - name: Build Frontend
+    #   run: cd web-apps/svg-dropper/frontend && /home/pi/.bun/bin/bun i && /home/pi/.bun/bin/bunx --bun vite build
       
     - name: Enable and start services
       run: |
