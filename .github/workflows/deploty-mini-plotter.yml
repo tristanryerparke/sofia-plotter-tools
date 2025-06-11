@@ -6,7 +6,7 @@ on:
 
 jobs:
   run-script:
-    #runs-on: self-hosted
+    runs-on: self-hosted, mini
     
     steps:
     - uses: actions/checkout@v3
@@ -35,7 +35,7 @@ jobs:
       run: /home/pi/sofia-plotter/bin/pip install -r python/requirements.txt
 
     - name: Build Frontend
-      run: cd web-apps/svg-dropper/frontend && /home/pi/.bun/bin/bun i && npm run build
+      run: cd web-apps/svg-dropper/frontend && /home/pi/.bun/bin/bun i && bunx --bun run build
       
     - name: Enable and start services
       run: |
