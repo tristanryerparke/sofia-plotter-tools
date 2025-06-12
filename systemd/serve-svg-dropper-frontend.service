@@ -3,7 +3,7 @@ Description=Frontend Server
 After=network.target
 
 [Service]
-ExecStart=/home/pi/.bun/bin/bunx http-server -p 8081
+ExecStart=/home/pi/.bun/bin/bunx http-server -p 8081 -g
 WorkingDirectory=/home/pi/actions-runner/_work/sofia-plotter/sofia-plotter/web-apps/svg-dropper/frontend/dist
 Restart=on-failure
 RestartSec=5
