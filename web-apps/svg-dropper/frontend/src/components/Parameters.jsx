@@ -111,7 +111,7 @@ function Parameters({
           rightSection={uploadedToPlotter ? <IconCheck size={16} /> : null}
           disabled={!gcodeContent || gcodeOutdated} 
           onClick={async () => {
-            const ip = import.meta.env.VITE_SVG2G_IS_PROD === 'False' ? 'localhost' : 'sofia-mini-plotter';
+            const ip = import.meta.env.VITE_SVG2G_IS_PROD === 'False' ? 'sofia-mini-plotter' : 'sofia-mini-plotter';
             await fetch(`http://${ip}:8082/send-gcode`, {
               method: 'POST',
               headers: {
