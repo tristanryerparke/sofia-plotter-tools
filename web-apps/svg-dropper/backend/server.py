@@ -51,7 +51,7 @@ async def send_gcode():
     global filename
 
     if os.getenv('VITE_SVG2G_IS_PROD') == 'False':
-        ip = 'sofia-mini-plotter'
+        ip = 'sofia-mini-plotter.local'
     else:
         ip = 'localhost'
 
