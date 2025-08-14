@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Stack, TextInput, NumberInput, Divider, Button, Title, Text, Checkbox } from '@mantine/core';
 import {IconCheck} from '@tabler/icons-react';
+import MultiToolModal from './MultiToolModal';
 
 function Parameters({ 
   params, 
@@ -18,6 +19,7 @@ function Parameters({
   };
 
   const [uploadedToPlotter, setUploadedToPlotter] = useState(false);
+  const [multiToolModalOpened, setMultiToolModalOpened] = useState(false);
 
 
   return (
@@ -87,6 +89,12 @@ function Parameters({
           value={params.outputFile}
           onChange={(event) => handleParamChange('outputFile', event.currentTarget.value)}
         />
+        <Button
+          onClick={() => setMultiToolModalOpened(true)}
+          disabled={!params.svgContent}
+        >
+          Open Multi-Tool Configuration
+        </Button>
 
       </Stack>
       <Stack gap='xs'>
@@ -124,6 +132,12 @@ function Parameters({
           Send GCODE to plotter
         </Button>
       </Stack>
+      
+      <MultiToolModal 
+        opened={multiToolModalOpened}
+        onClose={() => setMultiToolModalOpened(false)}
+        svgContent={params.svgContent}
+      />
     </Stack>
   );
 }
