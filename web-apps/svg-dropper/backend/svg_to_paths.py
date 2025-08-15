@@ -59,7 +59,7 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
     # Read the SVG file
-    with open("web-apps/svg-dropper/backend/tests/insta_full copy.svg", "r") as f:
+    with open("web-apps/svg-dropper/backend/tests/insta_full.svg", "r") as f:
         svg_string = f.read()
 
     # Convert SVG string to paths

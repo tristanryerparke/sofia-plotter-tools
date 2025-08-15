@@ -46,7 +46,7 @@ dependencies = [
     { name = "requests" },
     { name = "svgpathtools" },
     { name = "uvicorn" },
-    { name = "vpype-gcode" },
+    { name = "vpype" },
 ]
 
 [package.metadata]
@@ -59,7 +59,7 @@ requires-dist = [
     { name = "requests", specifier = ">=2.32.4" },
     { name = "svgpathtools", specifier = ">=1.7.1" },
     { name = "uvicorn", specifier = ">=0.35.0" },
-    { name = "vpype-gcode", specifier = ">=0.13.0" },
+    { name = "vpype", specifier = ">=1.15.0" },
 ]
 
 [[package]]
@@ -982,18 +982,4 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/19/b6/e66da9956f660529a9cbdaf8f804519984a2f598a37d47ecdc1ea8e5410d/vpype-1.15.0.tar.gz", hash = "sha256:090a1f88c888238df0744de0179b9d9f3829cd88bac60b88490e3e397a84aed3", size = 472694 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bf/c0/fd702778849e02de3d0efb27e91369a82ffcc6f215f14b777e85d41b4d5d/vpype-1.15.0-py3-none-any.whl", hash = "sha256:b94c5841df4de42c8654a6441a15609a2880f931b04aa027ef5eafa442dd408d", size = 527750 },
-]
-
-[[package]]
-name = "vpype-gcode"
-version = "0.13.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "click" },
-    { name = "numpy" },
-    { name = "vpype" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/ed/ea/7cdadba8b680145403ae849736a7e89c65da56a14439d03ead8fa457da1c/vpype-gcode-0.13.0.tar.gz", hash = "sha256:54f0f86eb30ece8a9172a35c5550bc06753eb8f8cac8a0c3d4d788fbc78654d6", size = 16958 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d9/1d/c4bcac5a7303752d3586d8cf079c05b77dec78cf8fc81e7cc1c888cd925a/vpype_gcode-0.13.0-py3-none-any.whl", hash = "sha256:9a03bebe8f5ac7d824ea5e4f1582798cde3c7dd7e4c3b0576ad332905ace6187", size = 12263 },
 ]
