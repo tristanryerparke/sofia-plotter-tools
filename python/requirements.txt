@@ -1,9 +1,0 @@
-pydantic
-uvicorn
-fastapi
-svgpathtools
-vpype
-vpype-gcode
-numpy
-requests
-lxml

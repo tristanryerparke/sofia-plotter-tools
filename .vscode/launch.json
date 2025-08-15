@@ -1,0 +1,40 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+
+        {
+            "name": "Backend",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/.venv/bin/python"
+            }
+        },
+        {
+            "name": "Frontend",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "/opt/homebrew/bin/bun --hot src/index.tsx",
+            "cwd": "${workspaceFolder}/frontend",
+        },
+        {
+            "name": "Python: Debug Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Full program",
+            "configurations": ["Backend", "Frontend"]
+        }
+    ]
+}   
