@@ -112,7 +112,7 @@ def create_gcode(strokes, z_lift, size, feedrate=10000):
 
             last_point = new_path[-1].tolist()
 
-    gcodefile = ["var start = state.upTime", "G21", f"G1 F{feedrate}"]
+    gcodefile = ["G21", f"G1 F{feedrate}"]
 
     paths_out = []
     regular_moves = []
@@ -136,8 +136,6 @@ def create_gcode(strokes, z_lift, size, feedrate=10000):
             process_path(current_path)
 
     gcodefile.append(f"G1 Z{z_lift:.2f}")
-
-    gcodefile.append('echo >>"/sys/summary.txt" {job.lastFileName}, " took ", {(state.upTime - var.start)/60}, "minutes"')
 
     gcode_all = "\n".join(gcodefile)
     return gcode_all, regular_moves, travel_moves, total_length

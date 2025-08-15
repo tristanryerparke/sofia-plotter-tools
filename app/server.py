@@ -132,7 +132,7 @@ async def process_svg(data: SVGData):
         svg_flattened = drawing.tostring()
 
         # Use the new svg_string_to_paths function to convert SVG to paths
-        paths = svg_string_to_paths(svg_flattened)
+        paths = svg_string_to_paths(svg_flattened, tolerance=data.params.polylineTolerance)
 
         # Calculate scaling factors
         scale_x = data.params.width / vb_width

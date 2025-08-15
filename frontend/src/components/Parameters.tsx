@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
@@ -51,11 +52,11 @@ export function Parameters({
 
   return (
     <div className="flex flex-col h-full justify-between overflow-y-auto">
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Parameters</h3>
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
+      <div>
+        <div className="flex flex-col gap-2">
+          <h3 className="text-lg font-semibold px-2 ml-2 pt-2">Parameters</h3>
+          <div className="flex flex-col gap-3 px-2">
+            <div className="flex items-center gap-2 px-2">
               <Checkbox
                 id="resize"
                 checked={resizing}
@@ -64,41 +65,39 @@ export function Parameters({
               <Label htmlFor="resize">Resize</Label>
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-1 px-2">
               <Label htmlFor="width">Width (mm)</Label>
-              <Input
+              <NumberInput
                 id="width"
-                type="number"
                 min={0}
-                value={params.width || ''}
+                value={params.width || undefined}
                 disabled={!resizing}
-                onChange={(e) => handleParamChange('width', parseFloat(e.target.value) || 0)}
-                className={resizing && params.width === 0 ? 'border-destructive' : ''}
+                onValueChange={(value) => handleParamChange('width', value || 0)}
+                className="h-9 w-full"
               />
               {resizing && params.width === 0 && (
                 <p className="text-sm text-destructive">Width is required</p>
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-1 px-2">
               <Label htmlFor="height">Height (mm)</Label>
-              <Input
+              <NumberInput
                 id="height"
-                type="number"
                 min={0}
-                value={params.height || ''}
+                value={params.height || undefined}
                 disabled={!resizing}
-                onChange={(e) => handleParamChange('height', parseFloat(e.target.value) || 0)}
-                className={resizing && params.height === 0 ? 'border-destructive' : ''}
+                onValueChange={(value) => handleParamChange('height', value || 0)}
+                className="h-9 w-full"
               />
               {resizing && params.height === 0 && (
                 <p className="text-sm text-destructive">Height is required</p>
               )}
             </div>
 
-            <Separator />
+            <Separator className="my-2 px-2"/>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2 px-2">
               <Checkbox
                 id="optimize"
                 checked={params.optimize}
@@ -107,65 +106,71 @@ export function Parameters({
               <Label htmlFor="optimize">Optimize line sorting</Label>
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-1 px-2">
               <Label htmlFor="polylineTolerance">Polyline tolerance (mm)</Label>
-              <Input
+              <NumberInput
                 id="polylineTolerance"
-                type="number"
-                step={0.01}
+                stepper={0.01}
+                decimalScale={2}
+                fixedDecimalScale={false}
                 value={params.polylineTolerance}
-                onChange={(e) => handleParamChange('polylineTolerance', parseFloat(e.target.value) || 0)}
+                onValueChange={(value) => handleParamChange('polylineTolerance', value || 0)}
+                className="h-9 w-full"
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-1 px-2">
               <Label htmlFor="clearance">Clearance (pick-up) height (mm)</Label>
-              <Input
+              <NumberInput
                 id="clearance"
-                type="number"
                 value={params.clearance}
-                onChange={(e) => handleParamChange('clearance', parseFloat(e.target.value) || 0)}
+                onValueChange={(value) => handleParamChange('clearance', value || 0)}
+                className="h-9 w-full"
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-1 px-2">
               <Label htmlFor="feedrate">Feedrate (mm/min)</Label>
-              <Input
+              <NumberInput
                 id="feedrate"
-                type="number"
+                min={0}
                 value={params.feedrate}
-                onChange={(e) => handleParamChange('feedrate', parseFloat(e.target.value) || 0)}
+                onValueChange={(value) => handleParamChange('feedrate', value || 0)}
+                className="h-9 w-full"
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-1 px-2">
               <Label htmlFor="outputFile">Output file name</Label>
               <div className="flex">
                 <Input
                   id="outputFile"
                   value={params.outputFile}
                   onChange={(e) => handleParamChange('outputFile', e.target.value)}
-                  className="rounded-r-none"
+                  className="rounded-r-none h-9"
                 />
-                <div className="bg-muted px-3 py-2 border border-l-0 rounded-r-md text-sm text-muted-foreground">
+                <div className="bg-muted h-9 px-3 py-2 border border-l-0 rounded-r-md text-sm text-muted-foreground">
                   .gcode
                 </div>
               </div>
             </div>
 
-            <Button
-              onClick={() => setMultiToolModalOpened(true)}
-              disabled={!params.svgContent}
-              className="w-full"
-              variant="outline"
-            >
-              Open Multi-Tool Configuration
-            </Button>
+            <Separator className="my-2 px-2"/>
+            <div className="flex flex-col gap-1 px-2">
+              <Button
+                onClick={() => setMultiToolModalOpened(true)}
+                disabled={!params.svgContent}
+                className="w-full px-2"
+                variant="outline"
+              >
+                Open Multi-Tool Configuration
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="space-y-2 mt-4">
+      <div className="flex flex-col gap-2 p-4">
         <Button 
           disabled={!params.svgContent || (resizing && (params.width === 0 || params.height === 0))} 
           className="w-full"

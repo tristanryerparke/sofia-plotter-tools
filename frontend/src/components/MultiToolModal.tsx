@@ -159,7 +159,7 @@ export function MultiToolModal({ opened, onClose, svgContent }: MultiToolModalPr
 
   // Tool options for dropdown
   const toolOptions = [
-    { value: 'skip', label: 'No tool (skip)' },
+    { value: 'skip', label: 'Skip' },
     { value: '1', label: 'Tool 1' },
     { value: '2', label: 'Tool 2' },
     { value: '3', label: 'Tool 3' },
@@ -176,7 +176,7 @@ export function MultiToolModal({ opened, onClose, svgContent }: MultiToolModalPr
     const initialToolState: Record<string, string> = {};
     parsedSvgData.groups.forEach(group => {
       initialVisibilityState[group.id] = true;
-      initialToolState[group.id] = 'skip';
+      initialToolState[group.id] = '1';
     });
     setVisibilityState(initialVisibilityState);
     setToolAssignments(initialToolState);
@@ -252,12 +252,12 @@ export function MultiToolModal({ opened, onClose, svgContent }: MultiToolModalPr
 
   return (
     <Dialog open={opened} onOpenChange={onClose}>
-      <DialogContent className="max-w-[90vw] max-h-[90vh] w-full h-full">
-        <DialogHeader>
-          <DialogTitle>Multi-Tool Configuration</DialogTitle>
+      <DialogContent className="w-[90vw] h-[90vh] max-w-[90vw] max-h-[90vh] overflow-hidden p-4 gap-2">
+        <DialogHeader className="shrink-0 p-0 m-0">
+          <DialogTitle className="text-lg font-semibold p-0 m-0">Multi-Tool Configuration</DialogTitle>
         </DialogHeader>
         
-        <div className="flex gap-4 h-full">
+        <div className="flex flex-row gap-4 h-full min-h-0 grow">
           {/* Sidebar for group controls */}
           <div className="w-96 border-r pr-4 flex flex-col h-full">
             {/* Sort controls */}
@@ -313,7 +313,7 @@ export function MultiToolModal({ opened, onClose, svgContent }: MultiToolModalPr
                     </div>
                     <div className="flex items-center gap-2">
                       <Select
-                        value={toolAssignments[group.id] || 'skip'}
+                        value={toolAssignments[group.id] || '1'}
                         onValueChange={(value) => handleToolAssignment(group.id, value)}
                       >
                         <SelectTrigger className="w-24">
@@ -358,7 +358,7 @@ export function MultiToolModal({ opened, onClose, svgContent }: MultiToolModalPr
           </div>
 
           {/* Canvas area for SVG preview */}
-          <div className="flex-1 flex items-center justify-center border rounded">
+          <div className="flex-1 flex items-center justify-center ">
             <SVGViewer svgContent={filteredSvgContent} />
           </div>
         </div>

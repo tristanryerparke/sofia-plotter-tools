@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { saveAs } from 'file-saver';
 import "./index.css";
 
@@ -10,6 +9,7 @@ import { SVGDropzone } from './components/SVGDropzone';
 import { SVGViewer } from './components/SVGViewer';
 import { GCODEViewer } from './components/GCODEViewer';
 import { BottomBar } from './components/BottomBar';
+import { SizeWarningDialog } from './components/SizeWarningDialog';
 
 interface PlotData {
   regularMoves: number[][][];
@@ -159,7 +159,7 @@ export function App() {
       {/* Main content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-80 border-r bg-background p-4 overflow-y-auto">
+        <aside className="w-80 border-r bg-background overflow-y-auto">
           <Parameters 
             params={params}
             setParams={handleParamChange}
@@ -199,15 +199,10 @@ export function App() {
       </div>
 
       {/* Size warning modal */}
-      <Dialog open={showSizeWarning} onOpenChange={setShowSizeWarning}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Warning: SVG Size</DialogTitle>
-          </DialogHeader>
-          <p className="mb-4">Your SVG did not contain any unit data. Please specify a size in the parameters sidebar.</p>
-          <Button onClick={() => setShowSizeWarning(false)}>OK</Button>
-        </DialogContent>
-      </Dialog>
+      <SizeWarningDialog 
+        open={showSizeWarning} 
+        onOpenChange={setShowSizeWarning} 
+      />
     </div>
   );
 }

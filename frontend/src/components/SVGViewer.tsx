@@ -15,11 +15,11 @@ export function SVGViewer({ svgContent }: SVGViewerProps) {
   const dataUri = `data:image/svg+xml,${encodedSvg}`;
 
   return (
-    <div className="h-full w-full flex items-center justify-center p-0">
+    <div className="h-full w-full flex items-center justify-center p-4 overflow-hidden">
       <img 
         src={dataUri} 
         alt="SVG Image" 
-        className="max-h-full max-w-full object-contain border border-border"
+        className="max-h-full max-w-full object-fit border border-border grow"
         style={{
           margin: 0,
           padding: 0,
