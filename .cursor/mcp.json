@@ -1,0 +1,10 @@
+{
+    "mcpServers": {
+      "vpype-gcode Docs": {
+        "url": "https://gitmcp.io/plottertools/vpype-gcode"
+      },
+      "vpype Docs": {
+        "url": "https://gitmcp.io/plottertools/vpype"
+      }
+    }
+  }

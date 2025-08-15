@@ -141,7 +141,7 @@ function MultiToolModal({ opened, onClose, svgContent }) {
     const initialToolState = {};
     parsedSvgData.groups.forEach(group => {
       initialVisibilityState[group.id] = true; // All groups visible by default
-      initialToolState[group.id] = '1'; // Default to Tool 1
+      initialToolState[group.id] = 'skip'; // Default to No tool (skip)
     });
     setVisibilityState(initialVisibilityState);
     setToolAssignments(initialToolState);
@@ -222,7 +222,7 @@ function MultiToolModal({ opened, onClose, svgContent }) {
           maxHeight: '90vh'
         },
         body: {
-          height: 'calc(90vh - 65px)', // Account for header height
+          height: 'calc(90vh - 60px)', // Account for header height
           padding: '1rem',
           display: 'flex',
           flexDirection: 'column'
@@ -296,7 +296,7 @@ function MultiToolModal({ opened, onClose, svgContent }) {
                     <Select
                       placeholder="Tool"
                       data={toolOptions}
-                      value={toolAssignments[group.id] || '1'}
+                      value={toolAssignments[group.id] || 'skip'}
                       onChange={(value) => handleToolAssignment(group.id, value)}
                       size="xs"
                       w={120}
