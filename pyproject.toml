@@ -1,0 +1,15 @@
+[project]
+name = "sofia-plotter"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.116.1",
+    "lxml>=6.0.0",
+    "numpy>=2.3.2",
+    "requests>=2.32.4",
+    "svgpathtools>=1.7.1",
+    "uvicorn>=0.35.0",
+    "vpype>=1.15.0",
+]

@@ -49,12 +49,12 @@ def strip_svg_units(svg_data: str) -> str:
     return etree.tostring(root, pretty_print=True, encoding="unicode")
 
 
-def svg_string_to_paths(svg_string):
+def svg_string_to_paths(svg_string, tolerance=0.1):
     # Create a StringIO object from the SVG string
     svg_io = io.StringIO(strip_svg_units(svg_string))
 
     # Read SVG from the StringIO object
-    line_collection, _, _ = vp.read_svg(svg_io, quantization=0.1, simplify=True)
+    line_collection, _, _ = vp.read_svg(svg_io, quantization=tolerance, simplify=True)
 
     # Create document and add the line collection
     doc = vp.Document()

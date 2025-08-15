@@ -1,0 +1,34 @@
+@import "../styles/globals.css";
+
+@layer base {
+  :root {
+    @apply font-sans;
+  }
+
+  body {
+    @apply min-w-[320px] m-0 bg-background text-foreground;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  html, #root {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+}
+
+.viewer-container {
+  height: calc(100% - 3rem);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}

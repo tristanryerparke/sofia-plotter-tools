@@ -1,24 +1,33 @@
 import { useState } from 'react';
-import { MantineProvider, AppShell, Burger, Group, Title, Modal, Button } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import '@mantine/core/styles.css';
-import './index.css'
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { saveAs } from 'file-saver';
+import "./index.css";
 
-import Parameters from './components/Parameters';
-import SVGDropzone from './components/SVGDropzone';
-import SVGViewer from './components/SVGViewer';
-import GCODEViewer from './components/GCODEViewer';
-import BottomBar from './components/BottomBar';
+import { Parameters } from './components/Parameters';
+import { SVGDropzone } from './components/SVGDropzone';
+import { SVGViewer } from './components/SVGViewer';
+import { GCODEViewer } from './components/GCODEViewer';
+import { BottomBar } from './components/BottomBar';
 
+interface PlotData {
+  regularMoves: number[][][];
+  travelMoves: number[][][];
+  totalLength: number;
+  estimatedTimeMinutes: number;
+}
 
-
-function App() {
-  const [opened, { toggle }] = useDisclosure();
+export function App() {
   const [viewerState, setViewerState] = useState('Upload');
-  const [svgContent, setSvgContent] = useState(null);
-  const [svgInfo, setSvgInfo] = useState({ width: 0, height: 0, filename: '', pathCount: 0 });
-  const [gcodeContent, setGcodeContent] = useState(null);
+  const [svgContent, setSvgContent] = useState<string | null>(null);
+  const [svgInfo, setSvgInfo] = useState({ 
+    width: 0, 
+    height: 0, 
+    filename: '', 
+    pathCount: 0 
+  });
+  const [gcodeContent, setGcodeContent] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [params, setParams] = useState({
     width: 0,
@@ -29,21 +38,21 @@ function App() {
     feedrate: 5000,
     flipVertically: false,
     flipHorizontally: false,
-    svgContent: null,
+    svgContent: null as string | null,
     optimize: false,
   });
-  const [plotData, setPlotData] = useState(null);
+  const [plotData, setPlotData] = useState<PlotData | null>(null);
   const [gcodeOutdated, setGcodeOutdated] = useState(false);
   const [showTravel, setShowTravel] = useState(true);
   const [showSizeWarning, setShowSizeWarning] = useState(false);
   const [resizing, setResizing] = useState(false);
 
-  const handleParamChange = (newParams) => {
+  const handleParamChange = (newParams: any) => {
     setParams(newParams);
     setGcodeOutdated(true);
   };
 
-  const handleSVGUpload = (content, filename) => {
+  const handleSVGUpload = (content: string, filename: string) => {
     setSvgContent(content);
     setViewerState('SVG');
 
@@ -59,17 +68,17 @@ function App() {
       const heightUnit = height.replace(/[0-9.]/g, '');
 
       if (widthUnit === 'mm' && heightUnit === 'mm') {
-        width = parseFloat(width);
-        height = parseFloat(height);
+        width = parseFloat(width) as any;
+        height = parseFloat(height) as any;
       } else {
-        width = 0;
-        height = 0;
+        width = 0 as any;
+        height = 0 as any;
         setShowSizeWarning(true);
         setResizing(true);
       }
     } else {
-      width = 0;
-      height = 0;
+      width = 0 as any;
+      height = 0 as any;
       setShowSizeWarning(true);
       setResizing(true);
     }
@@ -77,12 +86,17 @@ function App() {
     const outputFilename = filename.replace(/\.svg$/i, '');
     const pathCount = svgDoc.getElementsByTagNameNS("http://www.w3.org/2000/svg", "path").length;
 
-    setSvgInfo({ width, height, filename: outputFilename, pathCount });
+    setSvgInfo({ 
+      width: width as number, 
+      height: height as number, 
+      filename: outputFilename, 
+      pathCount 
+    });
     setParams(prevParams => ({
       ...prevParams,
       svgContent: content,
-      width,
-      height,
+      width: width as number,
+      height: height as number,
       outputFile: outputFilename,
     }));
   };
@@ -90,14 +104,15 @@ function App() {
   const handleGenerateGCODE = async () => {
     setIsGenerating(true);
     try {
-      const ip = import.meta.env.VITE_SVG2G_IS_PROD === 'False' ? 'sofia-mini-plotter' : 'sofia-mini-plotter';
-      const response = await fetch(`http://${ip}:8082/process-svg`, {
+      // const ip = import.meta.env.VITE_SVG2G_IS_PROD === 'False' ? 'sofia-mini-plotter' : 'sofia-mini-plotter';
+      const ip = 'localhost';
+      const response = await fetch(`http://${ip}:8000/process-svg`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          svg_base64: btoa(params.svgContent),
+          svg_base64: btoa(params.svgContent || ''),
           params: params,
         }),
       });
@@ -107,7 +122,6 @@ function App() {
       }
 
       const result = await response.json();
-      console.log(result);
       setGcodeContent(result.gcode);
       setPlotData({
         regularMoves: JSON.parse(result.plotData.regularMoves),
@@ -124,8 +138,7 @@ function App() {
     }
   };
 
-
-  const handleDownloadGCODE = (params) => {
+  const handleDownloadGCODE = (params: any) => {
     if (gcodeContent) {
       const blob = new Blob([atob(gcodeContent)], { type: 'text/plain;charset=utf-8' });
       saveAs(blob, `${params.outputFile}.gcode`);
@@ -137,20 +150,16 @@ function App() {
   };
 
   return (
-    <MantineProvider defaultColorScheme="light">
-      <AppShell
-        header={{ height: 60 }}
-        navbar={{ width: 300, breakpoint: 'sm', collapsed: { mobile: !opened } }}
-        padding="md"
-        h='100vh'
-      >
-        <AppShell.Header>
-          <Group h="100%" px="md">
-            <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-            <Title order={3}>SVG to GCODE Converter</Title>
-          </Group>
-        </AppShell.Header>
-        <AppShell.Navbar p="md">
+    <div className="h-screen flex flex-col bg-background">
+      {/* Header */}
+      <header className="border-b bg-background px-4 py-2">
+        <h1 className="text-2xl font-bold">SVG to GCODE Converter</h1>
+      </header>
+
+      {/* Main content */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <aside className="w-80 border-r bg-background p-4 overflow-y-auto">
           <Parameters 
             params={params}
             setParams={handleParamChange}
@@ -162,10 +171,11 @@ function App() {
             resizing={resizing}
             setResizing={setResizing}
           />
-        </AppShell.Navbar>
+        </aside>
 
-        <AppShell.Main className="main-content">
-          <div className="viewer-container">
+        {/* Main viewer area */}
+        <main className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 p-4 min-h-0 overflow-hidden">
             {viewerState === 'Upload' ? (
               <SVGDropzone onUpload={handleSVGUpload} />
             ) : viewerState === 'SVG' ? (
@@ -174,26 +184,32 @@ function App() {
               <GCODEViewer plotData={plotData} showTravel={showTravel} />
             ) : null}
           </div>
-          <BottomBar
-            viewerState={viewerState}
-            setViewerState={setViewerState}
-            svgInfo={svgInfo}
-            showTravel={showTravel}
-            toggleTravel={toggleTravel}
-            plotData={plotData}
-          />
-        </AppShell.Main>
-      </AppShell>
-      <Modal
-        opened={showSizeWarning}
-        onClose={() => setShowSizeWarning(false)}
-        title="Warning: SVG Size"
-      >
-        <p>Your SVG did not contain any unit data. Please specify a size in the parameters sidebar.</p>
-        <Button onClick={() => setShowSizeWarning(false)}>OK</Button>
-      </Modal>
-    </MantineProvider>
-  )
+          
+          <div className="flex-shrink-0">
+            <BottomBar
+              viewerState={viewerState}
+              setViewerState={setViewerState}
+              svgInfo={svgInfo}
+              showTravel={showTravel}
+              toggleTravel={toggleTravel}
+              plotData={plotData}
+            />
+          </div>
+        </main>
+      </div>
+
+      {/* Size warning modal */}
+      <Dialog open={showSizeWarning} onOpenChange={setShowSizeWarning}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Warning: SVG Size</DialogTitle>
+          </DialogHeader>
+          <p className="mb-4">Your SVG did not contain any unit data. Please specify a size in the parameters sidebar.</p>
+          <Button onClick={() => setShowSizeWarning(false)}>OK</Button>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }
 
-export default App
+export default App;
