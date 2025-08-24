@@ -7,7 +7,7 @@
         
 
         {
-            "name": "Backend",
+            "name": "Backend (Launch)",
             "type": "debugpy",
             "request": "launch",
             "program": "main.py",
@@ -17,11 +17,28 @@
             }
         },
         {
+            "name": "Attach to Backend",
+            "type": "debugpy",
+            "request": "attach",
+            "host": "localhost",
+            "port": 5678,
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "${workspaceFolder}"
+                }
+            ]
+        },
+        {
             "name": "Frontend",
-            "type": "node-terminal",
+            "type": "shell",
             "request": "launch",
             "command": "/opt/homebrew/bin/bun --hot src/index.tsx",
             "cwd": "${workspaceFolder}/frontend",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
         },
         {
             "name": "Python: Debug Current File",

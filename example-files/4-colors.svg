@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800mm" height="600mm" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <title>100 Quadratic Bézier Curves with CSS Classes</title>
+  
+  <defs>
+    <style>
+      .group1 {
+        stroke: #FF4444;
+        stroke-width: 2;
+        fill: none;
+        opacity: 0.8;
+      }
+      .group2 {
+        stroke: #4444FF;
+        stroke-width: 2;
+        fill: none;
+        opacity: 0.8;
+      }
+      .group3 {
+        stroke: #44FF44;
+        stroke-width: 2;
+        fill: none;
+        opacity: 0.8;
+      }
+      .group4 {
+        stroke: #FF8844;
+        stroke-width: 2;
+        fill: none;
+        opacity: 0.8;
+      }
+    </style>
+  </defs>
+  
+  <!-- Group 1: Top-left quadrant (Red curves) -->
+  <path class="group1" d="M 50 50 Q 80 30 110 60"/>
+  <path class="group1" d="M 60 70 Q 90 40 120 80"/>
+  <path class="group1" d="M 70 90 Q 100 60 130 100"/>
+  <path class="group1" d="M 80 110 Q 110 80 140 120"/>
+  <path class="group1" d="M 90 130 Q 120 100 150 140"/>
+  <path class="group1" d="M 100 150 Q 130 120 160 160"/>
+  <path class="group1" d="M 110 170 Q 140 140 170 180"/>
+  <path class="group1" d="M 120 190 Q 150 160 180 200"/>
+  <path class="group1" d="M 130 210 Q 160 180 190 220"/>
+  <path class="group1" d="M 140 230 Q 170 200 200 240"/>
+  <path class="group1" d="M 150 50 Q 180 70 210 40"/>
+  <path class="group1" d="M 160 70 Q 190 90 220 60"/>
+  <path class="group1" d="M 170 90 Q 200 110 230 80"/>
+  <path class="group1" d="M 180 110 Q 210 130 240 100"/>
+  <path class="group1" d="M 190 130 Q 220 150 250 120"/>
+  <path class="group1" d="M 200 150 Q 230 170 260 140"/>
+  <path class="group1" d="M 210 170 Q 240 190 270 160"/>
+  <path class="group1" d="M 220 190 Q 250 210 280 180"/>
+  <path class="group1" d="M 230 210 Q 260 230 290 200"/>
+  <path class="group1" d="M 240 230 Q 270 250 300 220"/>
+  <path class="group1" d="M 250 50 Q 280 80 310 50"/>
+  <path class="group1" d="M 260 70 Q 290 100 320 70"/>
+  <path class="group1" d="M 270 90 Q 300 120 330 90"/>
+  <path class="group1" d="M 280 110 Q 310 140 340 110"/>
+  <path class="group1" d="M 290 130 Q 320 160 350 130"/>
+  
+  <!-- Group 2: Top-right quadrant (Blue curves) -->
+  <path class="group2" d="M 450 50 Q 480 30 510 60"/>
+  <path class="group2" d="M 460 70 Q 490 40 520 80"/>
+  <path class="group2" d="M 470 90 Q 500 60 530 100"/>
+  <path class="group2" d="M 480 110 Q 510 80 540 120"/>
+  <path class="group2" d="M 490 130 Q 520 100 550 140"/>
+  <path class="group2" d="M 500 150 Q 530 120 560 160"/>
+  <path class="group2" d="M 510 170 Q 540 140 570 180"/>
+  <path class="group2" d="M 520 190 Q 550 160 580 200"/>
+  <path class="group2" d="M 530 210 Q 560 180 590 220"/>
+  <path class="group2" d="M 540 230 Q 570 200 600 240"/>
+  <path class="group2" d="M 550 50 Q 580 70 610 40"/>
+  <path class="group2" d="M 560 70 Q 590 90 620 60"/>
+  <path class="group2" d="M 570 90 Q 600 110 630 80"/>
+  <path class="group2" d="M 580 110 Q 610 130 640 100"/>
+  <path class="group2" d="M 590 130 Q 620 150 650 120"/>
+  <path class="group2" d="M 600 150 Q 630 170 660 140"/>
+  <path class="group2" d="M 610 170 Q 640 190 670 160"/>
+  <path class="group2" d="M 620 190 Q 650 210 680 180"/>
+  <path class="group2" d="M 630 210 Q 660 230 690 200"/>
+  <path class="group2" d="M 640 230 Q 670 250 700 220"/>
+  <path class="group2" d="M 650 50 Q 680 80 710 50"/>
+  <path class="group2" d="M 660 70 Q 690 100 720 70"/>
+  <path class="group2" d="M 670 90 Q 700 120 730 90"/>
+  <path class="group2" d="M 680 110 Q 710 140 740 110"/>
+  <path class="group2" d="M 690 130 Q 720 160 750 130"/>
+  
+  <!-- Group 3: Bottom-left quadrant (Green curves) -->
+  <path class="group3" d="M 50 350 Q 80 330 110 360"/>
+  <path class="group3" d="M 60 370 Q 90 340 120 380"/>
+  <path class="group3" d="M 70 390 Q 100 360 130 400"/>
+  <path class="group3" d="M 80 410 Q 110 380 140 420"/>
+  <path class="group3" d="M 90 430 Q 120 400 150 440"/>
+  <path class="group3" d="M 100 450 Q 130 420 160 460"/>
+  <path class="group3" d="M 110 470 Q 140 440 170 480"/>
+  <path class="group3" d="M 120 490 Q 150 460 180 500"/>
+  <path class="group3" d="M 130 510 Q 160 480 190 520"/>
+  <path class="group3" d="M 140 530 Q 170 500 200 540"/>
+  <path class="group3" d="M 150 350 Q 180 370 210 340"/>
+  <path class="group3" d="M 160 370 Q 190 390 220 360"/>
+  <path class="group3" d="M 170 390 Q 200 410 230 380"/>
+  <path class="group3" d="M 180 410 Q 210 430 240 400"/>
+  <path class="group3" d="M 190 430 Q 220 450 250 420"/>
+  <path class="group3" d="M 200 450 Q 230 470 260 440"/>
+  <path class="group3" d="M 210 470 Q 240 490 270 460"/>
+  <path class="group3" d="M 220 490 Q 250 510 280 480"/>
+  <path class="group3" d="M 230 510 Q 260 530 290 500"/>
+  <path class="group3" d="M 240 530 Q 270 550 300 520"/>
+  <path class="group3" d="M 250 350 Q 280 380 310 350"/>
+  <path class="group3" d="M 260 370 Q 290 400 320 370"/>
+  <path class="group3" d="M 270 390 Q 300 420 330 390"/>
+  <path class="group3" d="M 280 410 Q 310 440 340 410"/>
+  <path class="group3" d="M 290 430 Q 320 460 350 430"/>
+  
+  <!-- Group 4: Bottom-right quadrant (Orange curves) -->
+  <path class="group4" d="M 450 350 Q 480 330 510 360"/>
+  <path class="group4" d="M 460 370 Q 490 340 520 380"/>
+  <path class="group4" d="M 470 390 Q 500 360 530 400"/>
+  <path class="group4" d="M 480 410 Q 510 380 540 420"/>
+  <path class="group4" d="M 490 430 Q 520 400 550 440"/>
+  <path class="group4" d="M 500 450 Q 530 420 560 460"/>
+  <path class="group4" d="M 510 470 Q 540 440 570 480"/>
+  <path class="group4" d="M 520 490 Q 550 460 580 500"/>
+  <path class="group4" d="M 530 510 Q 560 480 590 520"/>
+  <path class="group4" d="M 540 530 Q 570 500 600 540"/>
+  <path class="group4" d="M 550 350 Q 580 370 610 340"/>
+  <path class="group4" d="M 560 370 Q 590 390 620 360"/>
+  <path class="group4" d="M 570 390 Q 600 410 630 380"/>
+  <path class="group4" d="M 580 410 Q 610 430 640 400"/>
+  <path class="group4" d="M 590 430 Q 620 450 650 420"/>
+  <path class="group4" d="M 600 450 Q 630 470 660 440"/>
+  <path class="group4" d="M 610 470 Q 640 490 670 460"/>
+  <path class="group4" d="M 620 490 Q 650 510 680 480"/>
+  <path class="group4" d="M 630 510 Q 660 530 690 500"/>
+  <path class="group4" d="M 640 530 Q 670 550 700 520"/>
+  <path class="group4" d="M 650 350 Q 680 380 710 350"/>
+  <path class="group4" d="M 660 370 Q 690 400 720 370"/>
+  <path class="group4" d="M 670 390 Q 700 420 730 390"/>
+  <path class="group4" d="M 680 410 Q 710 440 740 410"/>
+  <path class="group4" d="M 690 430 Q 720 460 750 430"/>
+</svg>

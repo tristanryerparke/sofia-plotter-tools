@@ -41,6 +41,7 @@ export function App() {
     svgContent: null as string | null,
     optimize: false,
   });
+  const [useMultiTool, setUseMultiTool] = useState(false);
   const [plotData, setPlotData] = useState<PlotData | null>(null);
   const [gcodeOutdated, setGcodeOutdated] = useState(false);
   const [showTravel, setShowTravel] = useState(true);
@@ -55,6 +56,7 @@ export function App() {
   const handleSVGUpload = (content: string, filename: string) => {
     setSvgContent(content);
     setViewerState('SVG');
+    setUseMultiTool(false); // Reset multi-tool configuration when new file is uploaded
 
     const parser = new DOMParser();
     const svgDoc = parser.parseFromString(content, 'image/svg+xml');
@@ -170,6 +172,8 @@ export function App() {
             gcodeOutdated={gcodeOutdated}
             resizing={resizing}
             setResizing={setResizing}
+            useMultiTool={useMultiTool}
+            setUseMultiTool={setUseMultiTool}
           />
         </aside>
 

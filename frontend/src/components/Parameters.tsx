@@ -30,6 +30,8 @@ interface ParametersProps {
   gcodeOutdated: boolean;
   resizing: boolean;
   setResizing: (resizing: boolean) => void;
+  useMultiTool: boolean;
+  setUseMultiTool: (useMultiTool: boolean) => void;
 }
 
 export function Parameters({ 
@@ -41,7 +43,9 @@ export function Parameters({
   gcodeContent, 
   gcodeOutdated, 
   resizing, 
-  setResizing
+  setResizing,
+  useMultiTool,
+  setUseMultiTool
 }: ParametersProps) {
   const handleParamChange = (key: string, value: any) => {
     setParams({ ...params, [key]: value });
@@ -156,15 +160,20 @@ export function Parameters({
             </div>
 
             <Separator className="my-2 px-2"/>
-            <div className="flex flex-col gap-1 px-2">
-              <Button
-                onClick={() => setMultiToolModalOpened(true)}
+            
+            <div className="flex items-center gap-2 px-2">
+              <Checkbox
+                id="useMultiTool"
+                checked={useMultiTool}
                 disabled={!params.svgContent}
-                className="w-full px-2"
-                variant="outline"
-              >
-                Open Multi-Tool Configuration
-              </Button>
+                onCheckedChange={(checked) => {
+                  setUseMultiTool(checked === true);
+                  if (checked === true) {
+                    setMultiToolModalOpened(true);
+                  }
+                }}
+              />
+              <Label htmlFor="useMultiTool">Use Multi-Tool Configuration</Label>
             </div>
           </div>
         </div>

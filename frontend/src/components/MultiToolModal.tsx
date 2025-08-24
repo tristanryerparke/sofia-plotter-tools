@@ -10,19 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Eye, EyeOff } from 'lucide-react';
 import { SVGViewer } from './SVGViewer';
-
-interface Group {
-  id: string;
-  name: string;
-  zIndex?: number;
-  paths: Array<{
-    d: string;
-    stroke: string;
-    strokeWidth: string;
-    fill: string;
-  }>;
-  color?: string;
-}
+import { parseSVGContent, generateFilteredSVG } from '../utils/svgParser';
 
 interface MultiToolModalProps {
   opened: boolean;
@@ -37,124 +25,7 @@ export function MultiToolModal({ opened, onClose, svgContent }: MultiToolModalPr
 
   // Parse SVG content to extract groups and paths
   const parsedSvgData = useMemo(() => {
-    if (!svgContent) return { groups: [], colors: [] };
-
-    try {
-      const parser = new DOMParser();
-      const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
-      
-      const groups: Group[] = [];
-      const colors = new Set<string>();
-      const ungroupedPaths: Array<{
-        d: string;
-        stroke: string;
-        strokeWidth: string;
-        fill: string;
-      }> = [];
-
-      // Find all groups and track their DOM order (z-index)
-      const groupElements = svgDoc.querySelectorAll('g');
-      groupElements.forEach((group, index) => {
-        const groupId = group.getAttribute('id') || `group-${index}`;
-        const paths = Array.from(group.querySelectorAll('path'));
-        
-        if (paths.length > 0) {
-          groups.push({
-            id: groupId,
-            name: groupId,
-            zIndex: index,
-            paths: paths.map(path => ({
-              d: path.getAttribute('d') || '',
-              stroke: path.getAttribute('stroke') || '#000000',
-              strokeWidth: path.getAttribute('stroke-width') || '1',
-              fill: path.getAttribute('fill') || 'none'
-            }))
-          });
-
-          // Collect colors from paths in groups
-          paths.forEach(path => {
-            const stroke = path.getAttribute('stroke');
-            if (stroke && stroke !== 'none') {
-              colors.add(stroke);
-            }
-          });
-        }
-      });
-
-      // Find ungrouped paths
-      const allPaths = Array.from(svgDoc.querySelectorAll('path'));
-      const groupedPaths = new Set();
-      
-      groupElements.forEach(group => {
-        Array.from(group.querySelectorAll('path')).forEach(path => {
-          groupedPaths.add(path);
-        });
-      });
-
-      allPaths.forEach(path => {
-        if (!groupedPaths.has(path)) {
-          const stroke = path.getAttribute('stroke');
-          if (stroke && stroke !== 'none') {
-            colors.add(stroke);
-          }
-          ungroupedPaths.push({
-            d: path.getAttribute('d') || '',
-            stroke: stroke || '#000000',
-            strokeWidth: path.getAttribute('stroke-width') || '1',
-            fill: path.getAttribute('fill') || 'none'
-          });
-        }
-      });
-
-      // Add base group for ungrouped paths if any exist
-      if (ungroupedPaths.length > 0) {
-        groups.push({
-          id: 'base',
-          name: 'Base (Ungrouped)',
-          zIndex: -1,
-          paths: ungroupedPaths
-        });
-      }
-
-      // Convert colors to groups for color sorting mode
-      const colorGroups: Group[] = Array.from(colors).map(color => {
-        const pathsWithColor: Array<{
-          d: string;
-          stroke: string;
-          strokeWidth: string;
-          fill: string;
-        }> = [];
-        
-        // Add paths from groups
-        groups.forEach(group => {
-          group.paths.forEach(path => {
-            if (path.stroke === color) {
-              pathsWithColor.push(path);
-            }
-          });
-        });
-
-        return {
-          id: `color-${color}`,
-          name: `Color: ${color}`,
-          paths: pathsWithColor,
-          color: color
-        };
-      });
-
-      // Sort groups by z-index (DOM order)
-      const sortedGroups = sortMode === 'group' 
-        ? groups.sort((a, b) => (b.zIndex || 0) - (a.zIndex || 0))
-        : colorGroups;
-
-      return {
-        groups: sortedGroups,
-        colors: Array.from(colors)
-      };
-    } catch (error) {
-      console.error('Error parsing SVG:', error);
-      return { groups: [], colors: [] };
-    }
+    return parseSVGContent(svgContent || '', sortMode);
   }, [svgContent, sortMode]);
 
   // Tool options for dropdown
@@ -184,35 +55,7 @@ export function MultiToolModal({ opened, onClose, svgContent }: MultiToolModalPr
 
   // Generate filtered SVG content based on visibility state
   const filteredSvgContent = useMemo(() => {
-    if (!svgContent) return '';
-
-    try {
-      const parser = new DOMParser();
-      const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
-      const svgElement = svgDoc.documentElement;
-
-      // Create a new SVG with only visible paths
-      const newSvg = svgElement.cloneNode(false) as SVGElement;
-      
-      parsedSvgData.groups.forEach(group => {
-        if (visibilityState[group.id]) {
-          group.paths.forEach(pathData => {
-            const pathElement = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'path');
-            pathElement.setAttribute('d', pathData.d);
-            pathElement.setAttribute('stroke', pathData.stroke);
-            pathElement.setAttribute('stroke-width', pathData.strokeWidth);
-            pathElement.setAttribute('fill', pathData.fill);
-            pathElement.setAttribute('stroke-linecap', 'round');
-            newSvg.appendChild(pathElement);
-          });
-        }
-      });
-
-      return new XMLSerializer().serializeToString(newSvg);
-    } catch (error) {
-      console.error('Error generating filtered SVG:', error);
-      return svgContent;
-    }
+    return generateFilteredSVG(svgContent || '', parsedSvgData.groups, visibilityState);
   }, [svgContent, parsedSvgData.groups, visibilityState]);
 
   const toggleGroupVisibility = (groupId: string) => {
@@ -296,19 +139,15 @@ export function MultiToolModal({ opened, onClose, svgContent }: MultiToolModalPr
                 <div key={group.id} className="p-3 border rounded">
                   <div className="flex justify-between items-center">
                     <div className="flex-1">
-                      <p className="text-sm font-medium">{group.name}</p>
+                      <div className="flex items-center gap-1">
+                        <p className="text-sm font-medium">{group.name}</p> 
+                        <span 
+                          className="inline-block w-3 h-3 rounded-sm align-middle mr-1"
+                          style={{ backgroundColor: group.color }}
+                        />
+                      </div>
                       <p className="text-xs text-muted-foreground">
                         {group.paths.length} path{group.paths.length !== 1 ? 's' : ''}
-                        {group.color && (
-                          <>
-                            {' • '}
-                            <span 
-                              className="inline-block w-3 h-3 rounded-sm align-middle mr-1"
-                              style={{ backgroundColor: group.color }}
-                            />
-                            {group.color}
-                          </>
-                        )}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">

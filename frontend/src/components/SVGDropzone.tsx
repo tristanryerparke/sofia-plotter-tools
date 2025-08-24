@@ -30,7 +30,7 @@ export function SVGDropzone({ onUpload }: SVGDropzoneProps) {
         className={`h-full w-full cursor-pointer transition-colors ${
           isDragActive 
             ? 'border-primary bg-primary/10' 
-            : 'border-dashed border-muted-foreground/25 hover:border-primary/50'
+            : 'border-dashed border-muted-foreground/25'
         }`}
       >
         <input {...getInputProps()} />
