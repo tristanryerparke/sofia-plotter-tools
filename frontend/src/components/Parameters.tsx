@@ -203,8 +203,7 @@ export function Parameters({
         <Button 
           disabled={!gcodeContent || gcodeOutdated} 
           onClick={async () => {
-            const ip = import.meta.env.VITE_SVG2G_IS_PROD === 'False' ? 'sofia-mini-plotter.local' : 'sofia-mini-plotter.local';
-            await fetch(`http://${ip}:8082/send-gcode`, {
+            await fetch(`http://${window.location.hostname}:8090/send-gcode`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

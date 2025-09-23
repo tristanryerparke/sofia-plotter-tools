@@ -8,6 +8,7 @@ dependencies = [
     "debugpy>=1.8.16",
     "fastapi>=0.116.1",
     "lxml>=6.0.0",
+    "matplotlib>=3.10.5",
     "numpy>=2.3.2",
     "requests>=2.32.4",
     "svgpathtools>=1.7.1",

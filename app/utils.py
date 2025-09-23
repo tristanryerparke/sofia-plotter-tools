@@ -89,7 +89,76 @@ def svg_string_to_paths(svg_string, tolerance=0.1):
     return paths
 
 
-def create_gcode(strokes, z_lift, size, feedrate=10000):
+def optimize_path_order(paths):
+    """
+    Optimize the order of paths using a nearest neighbor heuristic to minimize travel distance.
+    This is a greedy approximation to the traveling salesman problem.
+
+    Args:
+        paths: List of numpy arrays representing stroke paths
+
+    Returns:
+        List of paths in optimized order
+    """
+    if len(paths) <= 1:
+        return paths
+
+    # Convert to numpy arrays if not already
+    paths = [np.array(path) if not isinstance(path, np.ndarray) else path for path in paths]
+
+    # Extract start and end points for each path
+    start_points = np.array([path[0] for path in paths])
+    end_points = np.array([path[-1] for path in paths])
+
+    # Track which paths we've used
+    unused_indices = list(range(len(paths)))
+    optimized_paths = []
+
+    # Start with the path closest to origin (0,0)
+    origin = np.array([0, 0])
+    distances_to_origin = np.linalg.norm(start_points, axis=1)
+    current_idx = np.argmin(distances_to_origin)
+
+    # Current position is the end of the first path
+    current_pos = end_points[current_idx]
+    optimized_paths.append(paths[current_idx])
+    unused_indices.remove(current_idx)
+
+    # Greedily select the nearest path
+    while unused_indices:
+        remaining_start_points = start_points[unused_indices]
+        remaining_end_points = end_points[unused_indices]
+
+        # Calculate distances from current position to start of each remaining path
+        distances_to_starts = np.linalg.norm(remaining_start_points - current_pos, axis=1)
+
+        # Also consider distances to end points (in case we want to reverse the path)
+        distances_to_ends = np.linalg.norm(remaining_end_points - current_pos, axis=1)
+
+        # Choose the closest point (either start or end of a path)
+        min_start_dist = np.min(distances_to_starts)
+        min_end_dist = np.min(distances_to_ends)
+
+        if min_start_dist <= min_end_dist:
+            # Use path in normal direction
+            next_local_idx = np.argmin(distances_to_starts)
+            next_global_idx = unused_indices[next_local_idx]
+            next_path = paths[next_global_idx]
+            current_pos = end_points[next_global_idx]
+        else:
+            # Use path in reverse direction
+            next_local_idx = np.argmin(distances_to_ends)
+            next_global_idx = unused_indices[next_local_idx]
+            next_path = paths[next_global_idx][::-1]  # Reverse the path
+            current_pos = start_points[next_global_idx]
+
+        optimized_paths.append(next_path)
+        unused_indices.remove(next_global_idx)
+
+    return optimized_paths
+
+
+def create_gcode(strokes, z_lift, size, feedrate=10000, optimize=False):
     def process_path(new_path):
         nonlocal last_point, total_length
         if len(new_path) > 1:
@@ -123,6 +192,8 @@ def create_gcode(strokes, z_lift, size, feedrate=10000):
     def point_in_bounds(pt):
         return 0 <= pt[0] <= size[0] and 0 <= pt[1] <= size[1]
 
+    # First, filter all paths to only include in-bounds segments
+    filtered_paths = []
     for path in strokes:
         current_path = []
         for pt in path:
@@ -130,10 +201,20 @@ def create_gcode(strokes, z_lift, size, feedrate=10000):
                 current_path.append(pt)
             else:
                 if current_path:
-                    process_path(current_path)
+                    filtered_paths.append(current_path)
                     current_path = []
         if current_path:
-            process_path(current_path)
+            filtered_paths.append(current_path)
+
+    # Apply optimization if requested
+    if optimize and len(filtered_paths) > 1:
+        print(f"Optimizing {len(filtered_paths)} paths for minimal travel distance...")
+        filtered_paths = optimize_path_order(filtered_paths)
+        print("Path optimization complete.")
+
+    # Process all paths in the (potentially optimized) order
+    for path in filtered_paths:
+        process_path(path)
 
     gcodefile.append(f"G1 Z{z_lift:.2f}")
 

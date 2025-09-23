@@ -27,10 +27,10 @@ export function SVGDropzone({ onUpload }: SVGDropzoneProps) {
     <div className="h-full w-full">
       <Card 
         {...getRootProps()} 
-        className={`h-full w-full cursor-pointer transition-colors ${
+        className={`h-full w-full cursor-pointer transition-colors shadow-none${
           isDragActive 
-            ? 'border-primary bg-primary/10' 
-            : 'border-dashed border-muted-foreground/25'
+            ? 'bg-primary/10' 
+            : 'bg-muted'
         }`}
       >
         <input {...getInputProps()} />

@@ -7,7 +7,7 @@
         
 
         {
-            "name": "Backend (Launch)",
+            "name": "Backend",
             "type": "debugpy",
             "request": "launch",
             "program": "main.py",

@@ -63,10 +63,7 @@ async def send_gcode():
     global current_gcode_text
     global filename
 
-    if os.getenv("VITE_SVG2G_IS_PROD") == "False":
-        ip = "sofia-mini-plotter.local"
-    else:
-        ip = "localhost"
+    ip = os.uname().nodename
 
     conn_res = requests.get(f"http://{ip}/machine/connect")
     session_key = conn_res.json()["sessionKey"]
@@ -159,7 +156,9 @@ async def process_svg(data: SVGData):
                 path[:, 0] = data.params.width - path[:, 0]
 
         # Generate G-code from paths
-        gcode, regular_moves, travel_moves, total_length = create_gcode(scaled_paths, z_lift=data.params.clearance, size=(data.params.width, data.params.height), feedrate=data.params.feedrate)
+        gcode, regular_moves, travel_moves, total_length = create_gcode(
+            scaled_paths, z_lift=data.params.clearance, size=(data.params.width, data.params.height), feedrate=data.params.feedrate, optimize=data.params.optimize
+        )
 
         current_gcode_text = gcode
         filename = f"{data.params.outputFile}"

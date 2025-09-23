@@ -1,0 +1,16 @@
+services:
+  backend:
+    image: twistypoo/sofia-plotter-backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BUILDKIT: 1
+
+  frontend:
+    image: twistypoo/sofia-plotter-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BUILDKIT: 1
