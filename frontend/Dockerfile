@@ -1,6 +1,6 @@
 # Dockerfile for sofia-plotter frontend
 
-FROM --platform=linux/amd64 oven/bun:latest
+FROM --platform=linux/arm64 oven/bun:latest
 
 WORKDIR /frontend
 
