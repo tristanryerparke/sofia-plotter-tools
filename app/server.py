@@ -53,9 +53,13 @@ class SVGData(BaseModel):
     params: SVGParams
 
 
+class SendGCodeRequest(BaseModel):
+    hostname: str
+
+
 @app.post("/send-gcode")
-async def send_gcode_endpoint():
-    return await send_gcode()
+async def send_gcode_endpoint(request: SendGCodeRequest):
+    return await send_gcode(request.hostname)
 
 
 @app.post("/process-svg")

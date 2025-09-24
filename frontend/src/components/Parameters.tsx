@@ -53,6 +53,8 @@ export function Parameters({
 
   const [uploadedToPlotter, setUploadedToPlotter] = useState(false);
   const [multiToolModalOpened, setMultiToolModalOpened] = useState(false);
+  const [sendingToPlotter, setSendingToPlotter] = useState(false);
+  const [sendSuccess, setSendSuccess] = useState(false);
 
   return (
     <div className="flex flex-col h-full justify-between overflow-y-auto">
@@ -204,21 +206,48 @@ export function Parameters({
         </Button>
         
         <Button 
-          disabled={!gcodeContent || gcodeOutdated} 
+          disabled={!gcodeContent || gcodeOutdated || sendingToPlotter} 
           onClick={async () => {
-            await fetch(`http://${window.location.hostname}:8090/send-gcode`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            });
-            setUploadedToPlotter(true);
+            setSendingToPlotter(true);
+            setSendSuccess(false);
+            setUploadedToPlotter(false);
+            
+            try {
+              const response = await fetch(`http://${window.location.hostname}:8090/send-gcode`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  hostname: window.location.hostname
+                }),
+              });
+              
+              if (response.ok) {
+                setSendSuccess(true);
+                setUploadedToPlotter(true);
+                
+                // Reset success state after 1 second
+                setTimeout(() => {
+                  setSendSuccess(false);
+                }, 1000);
+              } else {
+                // Handle error case - could add error state here if needed
+                console.error('Failed to send GCODE to plotter');
+              }
+            } catch (error) {
+              console.error('Error sending GCODE to plotter:', error);
+            } finally {
+              setSendingToPlotter(false);
+            }
           }}
           variant="outline"
           className="w-full"
         >
-          {uploadedToPlotter && <Check className="mr-2 h-4 w-4" />}
-          Send GCODE to plotter
+          {sendingToPlotter && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {sendSuccess && <Check className="mr-2 h-4 w-4" />}
+          {!sendingToPlotter && !sendSuccess && uploadedToPlotter && <Check className="mr-2 h-4 w-4" />}
+          {sendingToPlotter ? 'Sending...' : 'Send GCODE to plotter'}
         </Button>
       </div>
       

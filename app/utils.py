@@ -4,8 +4,8 @@ from typing import Tuple
 import xml.etree.ElementTree as ET
 import re
 from lxml import etree
-import io
 import vpype as vp
+import io
 
 DEFAULT_PRECISION = 2
 
