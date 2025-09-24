@@ -3,15 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
 import base64
-import os
 import numpy as np
-import requests
-import re
 import traceback
 from svgpathtools import svg2paths2, paths2Drawing
 from io import StringIO
 
 from app.utils import create_gcode, extract_viewbox, truncate_decimals, svg_string_to_paths
+from app.gcode_sender import send_gcode, set_gcode_data
 
 
 @asynccontextmanager
@@ -37,9 +35,6 @@ app.add_middleware(
     max_age=3600,  # Cache preflight requests for 1 hour
 )
 
-current_gcode_text = ""
-filename = ""
-
 
 class SVGParams(BaseModel):
     width: float
@@ -59,54 +54,12 @@ class SVGData(BaseModel):
 
 
 @app.post("/send-gcode")
-async def send_gcode():
-    global current_gcode_text
-    global filename
-
-    ip = os.uname().nodename
-
-    conn_res = requests.get(f"http://{ip}/machine/connect")
-    session_key = conn_res.json()["sessionKey"]
-
-    while True:
-        # check if file exists
-        file_exists_res = requests.get(
-            f"http://{ip}/machine/fileinfo/gcodes/{filename}.gcode",
-            headers={"X-Session-Key": session_key},
-        )
-
-        try:
-            file_exists_res.json()
-        except:
-            break
-
-        if file_exists_res.status_code == 200:
-            print("File exists")
-            match = re.match(r"^(.*?)(\((\d+)\))?$", filename.split(".")[0])
-            if match:
-                base, _, num = match.groups()
-                num = int(num) + 1 if num else 2
-                filename = f"{base}({num})"
-            print(f"New filename: {filename}")
-
-    print(current_gcode_text[:100])
-
-    conn_res = requests.put(
-        f"http://{ip}/machine/file/gcodes/{filename}.gcode",
-        current_gcode_text,
-        headers={"X-Session-Key": session_key},
-    )
-    print(conn_res.status_code)
-    print(conn_res.text)
-
-    if conn_res.status_code != 201:
-        raise HTTPException(status_code=500, detail="Failed to send GCODE to plotter")
+async def send_gcode_endpoint():
+    return await send_gcode()
 
 
 @app.post("/process-svg")
 async def process_svg(data: SVGData):
-    global current_gcode_text
-    global filename
     try:
         svg_data = base64.b64decode(data.svg_base64).decode("utf-8")
 
@@ -160,8 +113,8 @@ async def process_svg(data: SVGData):
             scaled_paths, z_lift=data.params.clearance, size=(data.params.width, data.params.height), feedrate=data.params.feedrate, optimize=data.params.optimize
         )
 
-        current_gcode_text = gcode
-        filename = f"{data.params.outputFile}"
+        # Set the GCODE data for sending
+        set_gcode_data(gcode, data.params.outputFile)
 
         # Encode gcode as base64
         gcode_base64 = base64.b64encode(gcode.encode()).decode()
