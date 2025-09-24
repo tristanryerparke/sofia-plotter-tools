@@ -1,8 +1,6 @@
 # Dockerfile for sofia-plotter backend
 FROM --platform=linux/arm64 ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
-WORKDIR /app
-
 # Install the regular dependencies
 COPY uv.lock ./
 COPY pyproject.toml ./

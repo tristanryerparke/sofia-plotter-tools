@@ -20,4 +20,4 @@ RUN bun run build
 EXPOSE 8091
 
 # Run it
-CMD ["bunx", "serve", "-s", "dist", "-l", "8091"]
+CMD ["bunx", "serve", "-s", "dist", "-l", "tcp://0.0.0.0:8091"]
