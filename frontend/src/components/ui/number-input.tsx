@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { forwardRef, useCallback, useEffect, useState, useRef } from 'react';
-import { NumericFormat, NumericFormatProps } from 'react-number-format';
+import { NumericFormat, type NumericFormatProps } from 'react-number-format';
 import { Button } from './button';
 import { Input } from './input';
 import { cn } from '@/lib/utils';
@@ -138,7 +138,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
         <div className="flex flex-col h-full">
           <Button
             aria-label="Increase value"
-            className="px-1 rounded-l-none rounded-br-none border-input border-l-0 border-b-[0.5px] focus-visible:relative h-1/2 w-4 min-h-0"
+            className="px-1 rounded-l-none rounded-br-none border-input border-l-0 border-b-[0.5px] focus-visible:ring-0 focus-visible:ring-offset-0 relative h-1/2 w-4 min-h-0"
             variant="outline"
             onClick={handleIncrement}
             disabled={value === max}
@@ -147,7 +147,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
           </Button>
           <Button
             aria-label="Decrease value"
-            className="px-1 rounded-l-none rounded-tr-none border-input border-l-0 border-t-[0.5px] focus-visible:relative h-1/2 w-4 min-h-0"
+            className="px-1 rounded-l-none rounded-tr-none border-input border-l-0 border-t-[0.5px] focus-visible:ring-0 focus-visible:ring-offset-0 relative h-1/2 w-4 min-h-0"
             variant="outline"
             onClick={handleDecrement}
             disabled={value === min}

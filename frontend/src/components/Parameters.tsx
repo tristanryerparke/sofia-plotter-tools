@@ -69,37 +69,39 @@ export function Parameters({
               <Label htmlFor="resize">Resize</Label>
             </div>
 
-            <div className="flex flex-col gap-1 px-2">
-              <Label htmlFor="width">Width (mm)</Label>
-              <NumberInput
-                id="width"
-                min={0}
-                value={params.width || undefined}
-                disabled={!resizing}
-                onValueChange={(value) => handleParamChange('width', value || 0)}
-                className="h-9 w-full"
-              />
-              {resizing && params.width === 0 && (
-                <p className="text-sm text-destructive">Width is required</p>
-              )}
+            <div className="flex gap-2 px-2">
+              <div className="flex flex-col gap-1 flex-1">
+                <Label htmlFor="width">Width (mm)</Label>
+                <NumberInput
+                  id="width"
+                  min={0}
+                  value={params.width || undefined}
+                  disabled={!resizing}
+                  onValueChange={(value) => handleParamChange('width', value || 0)}
+                  className="h-9 w-full"
+                />
+                {resizing && params.width === 0 && (
+                  <p className="text-sm text-destructive">Width is required</p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1 flex-1">
+                <Label htmlFor="height">Height (mm)</Label>
+                <NumberInput
+                  id="height"
+                  min={0}
+                  value={params.height || undefined}
+                  disabled={!resizing}
+                  onValueChange={(value) => handleParamChange('height', value || 0)}
+                  className="h-9 w-full"
+                />
+                {resizing && params.height === 0 && (
+                  <p className="text-sm text-destructive">Height is required</p>
+                )}
+              </div>
             </div>
 
-            <div className="flex flex-col gap-1 px-2">
-              <Label htmlFor="height">Height (mm)</Label>
-              <NumberInput
-                id="height"
-                min={0}
-                value={params.height || undefined}
-                disabled={!resizing}
-                onValueChange={(value) => handleParamChange('height', value || 0)}
-                className="h-9 w-full"
-              />
-              {resizing && params.height === 0 && (
-                <p className="text-sm text-destructive">Height is required</p>
-              )}
-            </div>
-
-            <Separator className="my-2 px-2"/>
+            <Separator className="px-2"/>
 
             <div className="flex items-center gap-2 px-2">
               <Checkbox

@@ -39,7 +39,7 @@ export function App() {
     flipVertically: false,
     flipHorizontally: false,
     svgContent: null as string | null,
-    optimize: false,
+    optimize: true,
   });
   const [useMultiTool, setUseMultiTool] = useState(false);
   const [plotData, setPlotData] = useState<PlotData | null>(null);

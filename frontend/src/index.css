@@ -17,6 +17,10 @@
     padding: 0;
     overflow: hidden;
   }
+
+  * {
+    outline-width: 1px;
+  }
 }
 
 .viewer-container {
