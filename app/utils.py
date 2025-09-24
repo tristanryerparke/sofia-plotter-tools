@@ -7,6 +7,22 @@ from lxml import etree
 import io
 import vpype as vp
 
+DEFAULT_PRECISION = 2
+
+
+def fg(number, precision=DEFAULT_PRECISION):
+    """formats a number for gcode output"""
+    if number == 0:  # Handle zero separately
+        return "0"
+    elif number % 1 == 0:  # Check if the number is an integer
+        return str(int(number))  # Convert to string and return
+    elif 0 < abs(number) < 1:  # Check if the absolute value is less than 1
+        # Format with a leading zero, specify precision, and remove trailing zeros
+        return f"{number:0.{precision}f}".rstrip("0").rstrip(".")
+    else:
+        # Format normally, specify precision, and remove trailing zeros
+        return f"{number:.{precision}f}".rstrip("0").rstrip(".")
+
 
 def truncate_decimals(data, decimal_places=3):
     """Truncate all floating point numbers in a nested list structure to a specified number of decimal places."""
@@ -163,8 +179,8 @@ def create_gcode(strokes, z_lift, size, feedrate=10000, optimize=False):
         nonlocal last_point, total_length
         if len(new_path) > 1:
             new_path = np.array(new_path)
-            gcodefile.append(f"G1 Z{z_lift:.2f}")
-            gcodefile.append(f"G0 X{new_path[0][0]:.2f} Y{new_path[0][1]:.2f}")
+            gcodefile.append(f"G1 Z{fg(z_lift)}")
+            gcodefile.append(f"G0 X{fg(new_path[0][0])} Y{fg(new_path[0][1])}")
 
             if last_point is not None:
                 travel_moves.append([last_point, new_path[0].tolist()])
@@ -173,7 +189,7 @@ def create_gcode(strokes, z_lift, size, feedrate=10000, optimize=False):
             for i in range(0, len(new_path)):
                 pt1 = new_path[i - 1]
                 pt2 = new_path[i]
-                gcodefile.append(f"G1 X{pt2[0]:.2f} Y{pt2[1]:.2f} Z0")
+                gcodefile.append(f"G1 X{fg(pt2[0])} Y{fg(pt2[1])} Z0")
                 total_length += np.linalg.norm(pt2 - pt1)
 
             paths_out.append(new_path)
