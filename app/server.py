@@ -8,7 +8,7 @@ import traceback
 from svgpathtools import svg2paths2, paths2Drawing
 from io import StringIO
 
-from app.utils import create_gcode, extract_viewbox, truncate_decimals, svg_string_to_paths
+from app.utils import create_gcode, extract_viewbox, truncate_decimals, vpype_svg_to_paths
 from app.gcode_sender import send_gcode, set_gcode_data
 
 
@@ -85,8 +85,8 @@ async def process_svg(data: SVGData):
         # Convert the drawing to string
         svg_flattened = drawing.tostring()
 
-        # Use the new svg_string_to_paths function to convert SVG to paths
-        paths = svg_string_to_paths(svg_flattened, tolerance=data.params.polylineTolerance)
+        # Convert SVG to paths
+        paths = vpype_svg_to_paths(svg_flattened, tolerance=data.params.polylineTolerance)
 
         # Calculate scaling factors
         scale_x = data.params.width / vb_width
