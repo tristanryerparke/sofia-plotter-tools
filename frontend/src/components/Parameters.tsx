@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 
-import { Check } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import { MultiToolModal } from './MultiToolModal';
 
 interface ParametersProps {
@@ -181,13 +181,14 @@ export function Parameters({
 
       <div className="flex flex-col gap-2 p-4">
         <Button 
-          disabled={!params.svgContent || (resizing && (params.width === 0 || params.height === 0))} 
+          disabled={!params.svgContent || (resizing && (params.width === 0 || params.height === 0)) || isGenerating} 
           className="w-full"
           onClick={() => {
             setUploadedToPlotter(false);
             onGenerateGCODE();
           }}
         >
+          {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {isGenerating ? 'Generating...' : 'Generate GCODE'}
         </Button>
         
