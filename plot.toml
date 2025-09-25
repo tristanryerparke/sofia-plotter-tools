@@ -1,0 +1,14 @@
+
+[gwrite.json_t]
+document_start = "[\n"
+document_end = "]\n"
+line_join = ",\n"
+layer_join = ",\n"
+layer_start = "\t[\n"
+layer_end = "\t]"
+line_start = "\t\t[\n"
+line_end = "\t\t]"
+segment = "\t\t\t[{x:.2f}, {y:.2f}],\n"
+segment_last = "\t\t\t[{x:.2f}, {y:.2f}]\n"
+unit = "px"
+invert_y = true

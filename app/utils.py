@@ -175,6 +175,16 @@ def optimize_path_order(paths):
 
 
 def create_gcode(strokes, z_lift, size, feedrate=10000, optimize=False):
+    # Debug: Check input data structure
+    print(f"create_gcode received {len(strokes)} strokes")
+    if len(strokes) > 0:
+        print(f"First stroke type: {type(strokes[0])}")
+        if hasattr(strokes[0], "shape"):
+            print(f"First stroke shape: {strokes[0].shape}")
+        else:
+            print(f"First stroke length: {len(strokes[0])}")
+        print(f"First stroke sample: {strokes[0][:3] if len(strokes[0]) > 3 else strokes[0]}")
+
     def process_path(new_path):
         nonlocal last_point, total_length
         if len(new_path) > 1:
@@ -211,16 +221,18 @@ def create_gcode(strokes, z_lift, size, feedrate=10000, optimize=False):
     # First, filter all paths to only include in-bounds segments
     filtered_paths = []
     for path in strokes:
+        # Ensure path is a numpy array for consistent handling
+        path_array = np.array(path) if not isinstance(path, np.ndarray) else path
         current_path = []
-        for pt in path:
+        for pt in path_array:
             if point_in_bounds(pt):
                 current_path.append(pt)
             else:
                 if current_path:
-                    filtered_paths.append(current_path)
+                    filtered_paths.append(np.array(current_path))
                     current_path = []
         if current_path:
-            filtered_paths.append(current_path)
+            filtered_paths.append(np.array(current_path))
 
     # Apply optimization if requested
     if optimize and len(filtered_paths) > 1:

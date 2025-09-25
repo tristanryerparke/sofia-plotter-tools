@@ -9,6 +9,9 @@ RUN uv sync --locked
 # Copy the application code
 COPY app/ ./app/
 COPY main.py ./
+COPY plot.toml ./
+
+EXPOSE 8090
 
 # Run it
 CMD ["uv", "run", "python", "main.py"]

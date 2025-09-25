@@ -7,9 +7,11 @@ import numpy as np
 import traceback
 from svgpathtools import svg2paths2, paths2Drawing
 from io import StringIO
+from devtools import debug as d
 
-from app.utils import create_gcode, extract_viewbox, truncate_decimals, vpype_svg_to_paths
+from app.utils import create_gcode, extract_viewbox, truncate_decimals, strip_svg_units
 from app.gcode_sender import send_gcode, set_gcode_data
+from app.vpype_convert import process_svg_string_to_json
 
 
 @asynccontextmanager
@@ -67,7 +69,9 @@ async def process_svg(data: SVGData):
     try:
         svg_data = base64.b64decode(data.svg_base64).decode("utf-8")
 
-        print(f"svg_data[:100]: {svg_data[:200]}")
+        # print("SVG DATA:")
+        # print(f"svg_data[:200]: {svg_data[:400]}")
+        # print()
 
         # Save original SVG for debugging
         with open("test_save.svg", "w") as f:
@@ -77,16 +81,20 @@ async def process_svg(data: SVGData):
         vb_min_x, vb_min_y, vb_width, vb_height = extract_viewbox(svg_data)
         print(f"vb_min_x: {vb_min_x}, vb_min_y: {vb_min_y}, vb_width: {vb_width}, vb_height: {vb_height}")
 
-        paths, attributes, svg_attributes = svg2paths2(StringIO(svg_data))
+        svg_data_stripped = strip_svg_units(svg_data)
+        paths_nested_list = process_svg_string_to_json(
+            svg_data_stripped,
+            single_layer=True,
+            tolerance=data.params.polylineTolerance,
+            optimize=data.params.optimize,
+        )
 
-        # Get the Drawing object instead of writing to a file
-        drawing = paths2Drawing(paths, attributes=attributes, svg_attributes=svg_attributes, filename="temp.svg")  # filename is required but won't be used
+        # # Total number of paths/polylines across all layers
+        # total_paths = sum(len(layer) for layer in paths_nested_list)
+        # print(f"Total number of paths/polylines across all layers: {total_paths}")
 
-        # Convert the drawing to string
-        svg_flattened = drawing.tostring()
-
-        # Convert SVG to paths
-        paths = vpype_svg_to_paths(svg_flattened, tolerance=data.params.polylineTolerance)
+        # Currently grabs only the first layer
+        paths_numpy_array = [np.array(path) for path in paths_nested_list[0]]
 
         # Calculate scaling factors
         scale_x = data.params.width / vb_width
@@ -97,7 +105,7 @@ async def process_svg(data: SVGData):
 
         # Scale the paths
         scaled_paths = []
-        for path in paths:
+        for path in paths_numpy_array:
             scaled_path = np.zeros_like(path)
             scaled_path[:, 0] = (path[:, 0] - vb_min_x) * scale_x
             scaled_path[:, 1] = (path[:, 1] - vb_min_y) * scale_y
@@ -116,6 +124,10 @@ async def process_svg(data: SVGData):
         gcode, regular_moves, travel_moves, total_length = create_gcode(
             scaled_paths, z_lift=data.params.clearance, size=(data.params.width, data.params.height), feedrate=data.params.feedrate, optimize=data.params.optimize
         )
+
+        # print(f"GCODE LENGTH: {len(gcode)}\n")
+        # print(f"FIRST 100 CHARACTERS: {gcode[:100]}\n")
+        # print(f"LAST 100 CHARACTERS: {gcode[-100:]}\n")
 
         # Set the GCODE data for sending
         set_gcode_data(gcode, data.params.outputFile)

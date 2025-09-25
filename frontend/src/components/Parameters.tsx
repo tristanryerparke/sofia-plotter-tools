@@ -169,7 +169,8 @@ export function Parameters({
               <Checkbox
                 id="useMultiTool"
                 checked={useMultiTool}
-                disabled={!params.svgContent}
+                // disabled={!params.svgContent}
+                disabled
                 onCheckedChange={(checked) => {
                   setUseMultiTool(checked === true);
                   if (checked === true) {
@@ -177,7 +178,7 @@ export function Parameters({
                   }
                 }}
               />
-              <Label htmlFor="useMultiTool">Use Multi-Tool Configuration</Label>
+              <Label htmlFor="useMultiTool">Multi-Tool Configuration (soon)</Label>
             </div>
           </div>
         </div>
