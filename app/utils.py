@@ -241,7 +241,9 @@ def create_gcode(strokes, z_lift, size, feedrate=10000, optimize=False):
         print("Path optimization complete.")
 
     # Process all paths in the (potentially optimized) order
-    for path in filtered_paths:
+    for i, path in enumerate(filtered_paths):
+        if i == 0:
+            gcodefile.append(f"G0 X{fg(path[0][0])} Y{fg(path[0][1])}")
         process_path(path)
 
     gcodefile.append(f"G1 Z{z_lift:.2f}")
