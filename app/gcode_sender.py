@@ -22,11 +22,12 @@ def set_gcode_data(gcode_text: str, file_name: str):
 async def send_gcode(hostname: str):
     """Send GCODE to the plotter machine"""
     global current_gcode_text, filename
+    hostname = "localhost"
 
     logger.info(f"Attempting to connect to plotter at hostname: {hostname}")
 
     # Attempt to connect to the machine
-    connect_url = f"http://localhost/machine/connect"
+    connect_url = f"http://{hostname}/machine/connect"
     logger.info(f"Trying to connect to: {connect_url}")
 
     try:
