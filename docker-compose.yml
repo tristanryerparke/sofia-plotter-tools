@@ -6,15 +6,8 @@ services:
       dockerfile: Dockerfile
       args:
         DOCKER_BUILDKIT: 1
-    ports:
-      - "8090:8090"
+    network_mode: "host"
     restart: unless-stopped
-    # Allow DNS resolution and network connectivity
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
 
   frontend:
