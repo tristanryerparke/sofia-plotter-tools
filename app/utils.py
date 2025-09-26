@@ -207,7 +207,7 @@ def create_gcode(strokes, z_lift, size, feedrate=10000, optimize=False):
 
             last_point = new_path[-1].tolist()
 
-    gcodefile = ["G21", f"G1 F{feedrate}"]
+    gcodefile = ["G21", f"G1 F{feedrate}", "G53 G0 Z-20"]
 
     paths_out = []
     regular_moves = []
