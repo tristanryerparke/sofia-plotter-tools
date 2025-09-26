@@ -26,18 +26,23 @@ async def send_gcode(hostname: str):
     logger.info(f"Attempting to connect to plotter at hostname: {hostname}")
 
     # Attempt to connect to the machine
-    connect_url = f"http://{hostname}/machine/connect"
+    connect_url = f"http://localhost/machine/connect"
     logger.info(f"Trying to connect to: {connect_url}")
 
     try:
+        logger.info(f"Attempting HTTP GET request to: {connect_url}")
         conn_res = requests.get(connect_url, timeout=10)
+        logger.info(f"Response received: {conn_res.status_code}")
         session_key = conn_res.json()["sessionKey"]
         logger.info("Successfully connected to plotter, session key obtained")
 
     except requests.exceptions.ConnectionError as e:
         logger.error(f"Connection refused when trying to connect to {hostname} at {connect_url}")
         logger.error(f"Connection error details: {str(e)}")
-        raise HTTPException(status_code=503, detail=f"Failed to connect to plotter at {hostname}. Make sure the plotter is accessible and the hostname is correct.")
+        logger.error(f"This may be a Docker networking issue - check Docker network configuration")
+        raise HTTPException(
+            status_code=503, detail=f"Failed to connect to plotter at {hostname}. Make sure the plotter is accessible and the hostname is correct. If running in Docker, check network configuration."
+        )
     except requests.exceptions.Timeout as e:
         logger.error(f"Timeout when trying to connect to {hostname} at {connect_url}")
         raise HTTPException(status_code=504, detail=f"Timeout connecting to plotter at {hostname}. The plotter may be unresponsive.")
