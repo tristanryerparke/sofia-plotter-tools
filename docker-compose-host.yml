@@ -1,0 +1,26 @@
+# Alternative docker-compose.yml using host networking
+# Use this if you need direct host network access
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BUILDKIT: 1
+    network_mode: "host"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BUILDKIT: 1
+    network_mode: "host"
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+# Note: With host networking, both services will be directly accessible
+# Backend: http://pi-ip:8090
+# Frontend: http://pi-ip:8091
